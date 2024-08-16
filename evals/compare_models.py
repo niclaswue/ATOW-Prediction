@@ -10,7 +10,7 @@ class CompareModelsEval:
         closest_idx = np.abs((preds - gt)).argmin(axis=0)
         _, vals = np.unique(closest_idx, return_counts=True)
         win_rate = vals / len(gt)
-        return {name: {"win_rate": wr} for name, wr in zip(model_names, win_rate)}
+        return {name: {"win_rate % (↑)": wr} for name, wr in zip(model_names, win_rate)}
 
     def evaluate(self, ground_truth: pd.Series, predictions: Dict[str, pd.Series]):
         gt = ground_truth.to_numpy()

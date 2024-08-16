@@ -9,7 +9,7 @@ from utils.data_loader import DataLoader
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
-from evals.simple import MetricEvals
+from evals.metrics import MetricEvals
 from evals.compare_models import CompareModelsEval
 from visualizations.compare_models import plot_metric_overview
 

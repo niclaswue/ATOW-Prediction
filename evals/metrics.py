@@ -27,7 +27,7 @@ class MetricEvals:
 
     @staticmethod
     def relative_error(gt: np.ndarray, pred: np.ndarray, eps: float = 1e-6):
-        return (gt - pred) / (gt + eps)
+        return np.abs((gt - pred) / (gt + eps))
 
     @staticmethod
     def near(gt: np.ndarray, pred: np.ndarray, rel_tol: float = 0.05):
@@ -39,12 +39,12 @@ class MetricEvals:
         pred = predictions.to_numpy()
 
         return {
-            "mae": MetricEvals.mae(gt, pred),
-            "mse": MetricEvals.mse(gt, pred),
-            "mae_stddev": MetricEvals.mae_stddev(gt, pred),
-            "max_abs_error": MetricEvals.max_abs_error(gt, pred),
-            "mean_relative_error": MetricEvals.relative_error(gt, pred).mean(),
-            "max_relative_error": MetricEvals.relative_error(gt, pred).max(),
-            "r_squared": MetricEvals.r_squared(gt, pred),
-            "percent_near": MetricEvals.relative_error(gt, pred).mean(),
+            "mae (↓)": MetricEvals.mae(gt, pred),
+            "mse (↓)": MetricEvals.mse(gt, pred),
+            "mae_stddev (↓)": MetricEvals.mae_stddev(gt, pred),
+            "max_abs_error (↓)": MetricEvals.max_abs_error(gt, pred),
+            "mean_relative_error (↓)": MetricEvals.relative_error(gt, pred).mean(),
+            "max_relative_error (↓)": MetricEvals.relative_error(gt, pred).max(),
+            "r_squared (↑)": MetricEvals.r_squared(gt, pred),
+            "percent_near (↑)": MetricEvals.relative_error(gt, pred).mean(),
         }
