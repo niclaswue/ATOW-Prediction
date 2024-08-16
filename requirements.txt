@@ -1,3 +1,6 @@
 IPython
 pyopensky
 scikit-learn
+matplotlib
+plotly
+colorlover
