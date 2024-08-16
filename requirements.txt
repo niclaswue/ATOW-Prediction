@@ -1,2 +1,3 @@
-Ipython
+IPython
 pyopensky
+scikit-learn
