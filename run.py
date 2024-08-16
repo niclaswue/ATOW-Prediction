@@ -1,21 +1,28 @@
 # This script can be used to execute the whole pipeline.
 from pathlib import Path
 from typing import List
-import json
+from pprint import pprint
 
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+import xgboost
 
 from utils.data_loader import DataLoader
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
+from models.scikit_learn_model import ScikitLearnModel
 from evals.metrics import MetricEvals
 from evals.compare_models import CompareModelsEval
 from visualizations.compare_models import plot_metric_overview
 
 
+rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 20, "verbose": 5})
+svm_model = ScikitLearnModel(SVR, {"kernel": "rbf", "C": 1.0, "verbose": 5})
+xgb = ScikitLearnModel(xgboost.XGBRegressor)
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [AverageModel(), MedianModel()]
+MODELS: List[BaseModel] = [AverageModel(), xgb, rf_model]
 
 
 def main():
@@ -30,7 +37,7 @@ def main():
         info = model.info()
 
         print("-" * 10)
-        print(f"Model info: {json.dumps(info, indent=4)}")
+        print(f"Model info: {pprint(info)}")
         print("-" * 10)
         predictions = model.predict(val_df)
         model_predictions[model.name] = predictions
