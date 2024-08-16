@@ -34,17 +34,17 @@ class SimpleEvals:
         # assign true to all values within 5% of the correct weight
         return SimpleEvals.relative_error(gt, pred) <= rel_tol
 
-    def evaluate(self, ground_truth: pd.DataFrame, predictions: pd.DataFrame):
+    def evaluate(self, ground_truth: pd.Series, predictions: pd.Series):
         gt = ground_truth.to_numpy()
         pred = predictions.to_numpy()
 
         return {
             "mae": SimpleEvals.mae(gt, pred),
             "mse": SimpleEvals.mse(gt, pred),
-            "r_squared": SimpleEvals.r_squared(gt, pred),
             "mae_stddev": SimpleEvals.mae_stddev(gt, pred),
             "max_abs_error": SimpleEvals.max_abs_error(gt, pred),
             "mean_relative_error": SimpleEvals.relative_error(gt, pred).mean(),
             "max_relative_error": SimpleEvals.relative_error(gt, pred).max(),
+            "r_squared": SimpleEvals.r_squared(gt, pred),
             "percent_near": SimpleEvals.relative_error(gt, pred).mean(),
         }
