@@ -22,6 +22,7 @@ Path("data").mkdir(exist_ok=True)
 s3 = S3Client()
 objects = [obj for obj in s3.s3client.list_objects("competition-data", recursive=True)]
 objects = [obj for obj in objects if not (Path("data") / obj.object_name).exists()]
+objects = reversed(objects)  # to get csv files first
 
 for obj in tqdm(objects):
     print(f"Downloading {obj.object_name}")
