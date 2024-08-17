@@ -6,3 +6,4 @@ plotly
 colorlover
 scikit-learn
 xgboost
+openap

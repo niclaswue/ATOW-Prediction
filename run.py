@@ -9,6 +9,7 @@ from sklearn.svm import SVR
 import xgboost
 
 from utils.data_loader import DataLoader
+from preprocessing.aircraft_performance import add_aircraft_performance_data
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
@@ -30,6 +31,7 @@ MODELS: List[BaseModel] = [ensemble, xgb, rf_model]
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, trajectories = loader.load()
+    challenge = add_aircraft_performance_data(challenge)
     train_df, val_df = challenge.split(train_percent=0.8)
 
     model_predictions = {}
