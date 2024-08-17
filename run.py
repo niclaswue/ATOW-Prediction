@@ -12,17 +12,19 @@ from utils.data_loader import DataLoader
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
+from models.ensemble import EnsembleModel
 from models.scikit_learn_model import ScikitLearnModel
 from evals.metrics import MetricEvals
 from evals.compare_models import CompareModelsEval
 from visualizations.compare_models import plot_metric_overview
 
 
-rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 20, "verbose": 5})
-svm_model = ScikitLearnModel(SVR, {"kernel": "rbf", "C": 1.0, "verbose": 5})
+rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
+ensemble = EnsembleModel([xgb, rf_model])
+
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [AverageModel(), xgb, rf_model]
+MODELS: List[BaseModel] = [ensemble, xgb, rf_model]
 
 
 def main():

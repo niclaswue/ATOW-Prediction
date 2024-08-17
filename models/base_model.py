@@ -12,7 +12,7 @@ class BaseModel(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def predict(self, input_df: pd.DataFrame):
+    def predict(self, input_df: pd.DataFrame) -> pd.Series:
         raise NotImplementedError()
 
     @abstractmethod
