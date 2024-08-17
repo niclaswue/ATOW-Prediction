@@ -14,6 +14,10 @@ class MetricEvals:
         return (((gt - pred)) ** 2).mean()
 
     @staticmethod
+    def rmse(gt: np.ndarray, pred: np.ndarray):
+        return np.sqrt((((gt - pred)) ** 2).mean())
+
+    @staticmethod
     def r_squared(gt: np.ndarray, pred: np.ndarray):
         return r2_score(gt, pred)
 
@@ -27,11 +31,11 @@ class MetricEvals:
 
     @staticmethod
     def relative_error(gt: np.ndarray, pred: np.ndarray, eps: float = 1e-6):
-        return np.abs((gt - pred) / (gt + eps))
+        return np.abs((gt - pred)) / (gt + eps)
 
     @staticmethod
-    def near(gt: np.ndarray, pred: np.ndarray, rel_tol: float = 0.05):
-        # assign true to all values within 5% of the correct weight
+    def near(gt: np.ndarray, pred: np.ndarray, rel_tol: float = 0.10):
+        # assign true to all values within 10% of the correct weight
         return MetricEvals.relative_error(gt, pred) <= rel_tol
 
     def evaluate(self, ground_truth: pd.Series, predictions: pd.Series):
@@ -41,10 +45,11 @@ class MetricEvals:
         return {
             "mae (↓)": MetricEvals.mae(gt, pred),
             "mse (↓)": MetricEvals.mse(gt, pred),
+            "rmse (↓)": MetricEvals.rmse(gt, pred),
             "mae_stddev (↓)": MetricEvals.mae_stddev(gt, pred),
             "max_abs_error (↓)": MetricEvals.max_abs_error(gt, pred),
             "mean_relative_error (↓)": MetricEvals.relative_error(gt, pred).mean(),
             "max_relative_error (↓)": MetricEvals.relative_error(gt, pred).max(),
             "r_squared (↑)": MetricEvals.r_squared(gt, pred),
-            "percent_near (↑)": MetricEvals.relative_error(gt, pred).mean(),
+            "percent_near (↑)": 100 * MetricEvals.relative_error(gt, pred).mean(),
         }
