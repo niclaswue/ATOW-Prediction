@@ -28,11 +28,6 @@ SERVICE = "http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?"
 
 @cache
 def download_data(uri):
-    """Fetch the data from the IEM
-    The IEM download service has some protections in place to keep the number
-    of inbound requests in check. This function implements an exponential
-    backoff to keep individual downloads from erroring.
-    """
     print(f"Downloading {uri} ...")
     attempt = 0
     while attempt < MAX_ATTEMPTS:
@@ -49,12 +44,6 @@ def download_data(uri):
 
 
 def save_airport_weather(row, location=Path("weather_data")):
-    """
-    Save weather data for a specific airport and time.
-
-    :param row: A pandas Series containing 'ades' and 'arrival_time'
-    :return: A dictionary with weather data
-    """
     processed = location / "processed.txt"
 
     date = row["arrival_date"]
