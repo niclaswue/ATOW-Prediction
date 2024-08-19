@@ -47,7 +47,7 @@ def save_airport_weather(row, location=Path("weather_data")):
     processed = location / "processed.txt"
 
     date = row["arrival_date"]
-    airports = row["ades"]
+    airports = sorted(row["ades"])
 
     start_time = pd.to_datetime(date)
     end_time = start_time + timedelta(hours=23, minutes=59, seconds=59)
@@ -68,9 +68,9 @@ def save_airport_weather(row, location=Path("weather_data")):
     lines = [l for l in lines if not l.startswith("#DEBUG")]
 
     # to convert it into a pandas dataframe
-    tmp = tempfile.NamedTemporaryFile()
-    with tmp:
-        tmp.write("\n".join(lines))
+    tmp = tempfile.NamedTemporaryFile().name
+    with open(tmp, "w") as f:
+        f.write("\n".join(lines))
     df = pd.read_csv(tmp)
 
     # we save it at provided location
@@ -78,7 +78,7 @@ def save_airport_weather(row, location=Path("weather_data")):
 
     # finally we save the URLs already fetched so that we can resume fetching later
     with open(processed, "a") as f:
-        f.write(url)
+        f.write(f"{url}\n")
 
 
 if __name__ == "__main__":
