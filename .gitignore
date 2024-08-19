@@ -1,4 +1,5 @@
 data/
+weather_data/
 *.parquet
 .access_keys.json
 
