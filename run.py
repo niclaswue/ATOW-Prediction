@@ -30,7 +30,7 @@ MODELS: List[BaseModel] = [ensemble, xgb, rf_model]
 
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
-    challenge, submission, trajectories = loader.load()
+    challenge, submission, final_submission, trajectories = loader.load()
     challenge = add_aircraft_performance_data(challenge)
     train_df, val_df = challenge.split(train_percent=0.8)
 
