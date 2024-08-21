@@ -18,6 +18,10 @@ class MetricEvals:
         return np.sqrt((((gt - pred)) ** 2).mean())
 
     @staticmethod
+    def mape(gt: np.ndarray, pred: np.ndarray):
+        return np.mean(np.abs((gt - pred) / gt)) * 100
+
+    @staticmethod
     def r_squared(gt: np.ndarray, pred: np.ndarray):
         return r2_score(gt, pred)
 
@@ -43,9 +47,10 @@ class MetricEvals:
         pred = predictions.to_numpy()
 
         return {
+            "rmse (↓)": MetricEvals.rmse(gt, pred),
+            "MAPE (↓)": MetricEvals.mape(gt, pred),
             "mae (↓)": MetricEvals.mae(gt, pred),
             "mse (↓)": MetricEvals.mse(gt, pred),
-            "rmse (↓)": MetricEvals.rmse(gt, pred),
             "mae_stddev (↓)": MetricEvals.mae_stddev(gt, pred),
             "max_abs_error (↓)": MetricEvals.max_abs_error(gt, pred),
             "mean_relative_error (↓)": MetricEvals.relative_error(gt, pred).mean(),
