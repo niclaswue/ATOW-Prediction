@@ -20,12 +20,12 @@ from evals.compare_models import CompareModelsEval
 from visualizations.compare_models import plot_metric_overview
 
 
-rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
+rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 1, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
 ensemble = EnsembleModel([xgb, rf_model])
 
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [ensemble, xgb, rf_model]
+MODELS: List[BaseModel] = [xgb, rf_model]
 
 
 def main():
