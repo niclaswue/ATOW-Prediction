@@ -26,3 +26,14 @@ further improvements
 - bayesian hyperparameter search
 - use neural network as predictor (learn JAX?) 
 - incorporate uncertainty?!
+
+
+clean data remove quasi duplicates with same tow
+
+https://www.transtats.bts.gov/AverageFare/
+https://www.transtats.bts.gov/Data_Elements.aspx?Data=4
+https://data.europa.eu/data/datasets/43c6ugqwp92dx7vlgnzja?locale=en
+Diversion Airports: https://www.bts.gov/topics/airlines-and-airports/domestic-flights-tarmac-times-more-3-hours-and-international-flights-9 
+Taxi out time: https://www.transtats.bts.gov/ONTIME/OriginDestination.aspx
+
+https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGJ&QO_fu146_anzr=b0-gvzr
