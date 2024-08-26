@@ -81,9 +81,24 @@ def save_airport_weather(row, location=Path("weather_data")):
         f.write(f"{url}\n")
 
 
+def combine_all_weather_data(location=Path("weather_data")):
+    dfs = []
+    files = [fn for fn in location.rglob("*.parquet")]
+    for fn in files:
+        dfs.append(pd.read_parquet(fn))
+    merged = pd.concat(dfs)
+    merged.to_csv(location / "all_weather.tsv", sep="\t")
+
+    # remove all daily files
+    for fn in files:
+        fn.unlink()
+
+
 if __name__ == "__main__":
     df = airport_df
     df["arrival_time"] = pd.to_datetime(df["arrival_time"])
     df["arrival_date"] = pd.to_datetime(df["arrival_time"]).dt.date
     date_ades_comb = df.groupby("arrival_date")["ades"].unique().reset_index()
     date_ades_comb.apply(save_airport_weather, axis=1)
+
+    combine_all_weather_data()
