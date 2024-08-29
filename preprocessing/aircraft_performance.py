@@ -5,7 +5,6 @@ import openap
 from tqdm import tqdm
 from functools import cache
 
-{"A310", "AT76", "BCS1", "BCS3", "C56X", "CRJ9", "E290"}
 additional_data = {
     # https://www.airbus.com/en/who-we-are/our-history/commercial-aircraft-history/previous-generation-aircraft/a310
     "A310": {

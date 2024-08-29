@@ -10,6 +10,8 @@ import xgboost
 
 from utils.data_loader import DataLoader
 from preprocessing.aircraft_performance import add_aircraft_performance_data
+from preprocessing.weather import add_weather_data
+from preprocessing.runway import add_runway_data
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
@@ -22,16 +24,20 @@ from visualizations.compare_models import plot_metric_overview
 
 rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 1, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
+# knn = ScikitLearnModel(KNeighborsRegressor, {"n_neighbors": 10, "weights": "distance"})
 ensemble = EnsembleModel([xgb, rf_model])
 
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [xgb, rf_model]
+MODELS: List[BaseModel] = [xgb]
 
 
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
+    # challenge = add_weather_data(challenge)
     challenge = add_aircraft_performance_data(challenge)
+    challenge = add_runway_data(challenge)
+
     train_df, val_df = challenge.split(train_percent=0.8)
 
     model_predictions = {}
