@@ -14,6 +14,7 @@ from preprocessing.aircraft_performance import add_aircraft_performance_data
 from preprocessing.weather import add_weather_data
 from preprocessing.runway import add_runway_data
 from preprocessing.statistics import add_statistics_data
+from preprocessing.trajectory_features import add_trajectory_features
 from preprocessing.augment_features import augment_features
 from models.base_model import BaseModel
 from models.average_model import AverageModel
@@ -38,7 +39,7 @@ ag = AutogluonModel()
 ensemble = EnsembleModel([xgb, rf_model])
 
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [ag, lgbm, xgb]
+MODELS: List[BaseModel] = [xgb]
 
 
 def main():
@@ -46,6 +47,7 @@ def main():
     challenge, submission, final_submission, trajectories = loader.load()
 
     challenge.df = pd.read_parquet("preprocessed_latest.parquet")
+    challenge = add_trajectory_features(challenge)
 
     # challenge = add_statistics_data(challenge)
     # challenge = add_weather_data(challenge)
