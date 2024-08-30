@@ -26,8 +26,46 @@ def get_near_airport_traj(trajectory, ap):
     return near
 
 
+def stats_for_series(series, name):
+    res = {}
+    if len(series) > 0:
+        res[f"{name}_max"] = series.max()
+        res[f"{name}_median"] = series.median()
+        res[f"{name}_mean"] = series.mean()
+        res[f"{name}_min"] = series.min()
+        res[f"{name}_std"] = series.std()
+    return res
+
+
 def calculate_takeoff_features(trajectory):
-    return
+    features = {}
+    indicated_vert_rate = trajectory.vertical_rate
+    measured_climb_rate = trajectory.altitude.diff() * 60
+    gr_acceleration = trajectory.groundspeed.diff()  # knots / s
+    gr_speed = trajectory.groundspeed  # knots
+
+    air_speed = calc_air_speed(trajectory)  # knots
+    air_acceleration = air_speed.diff()  # knots
+
+    # TODO: Calculate runway length based on distance traveled and compare with runway length from airports df
+
+    all_series = {
+        "indicated_vert_rate": indicated_vert_rate,
+        "measured_climb_rate": measured_climb_rate,
+        "gr_acceleration": gr_acceleration,
+        "gr_speed": gr_speed,
+        "air_speed": air_speed,
+        "air_acceleration": air_acceleration,
+    }
+    t_last = trajectory.timestamp.max()
+    delta_t = (t_last - trajectory.timestamp).dt.total_seconds()
+    for name, series in all_series.items():
+        features.update(stats_for_series(series, f"takeoff_{name}"))
+        for ds in [5, 10, 30, 60]:
+            series = series[delta_t <= ds] * 60
+            features.update(stats_for_series(series, f"takeoff_{name}_last_{ds}s"))
+
+    return features
 
 
 def calc_air_speed(df):
@@ -53,16 +91,6 @@ def calc_air_speed(df):
 
 
 def calculate_climb_features(trajectory):
-    def stats_for_series(series, name):
-        res = {}
-        if len(series) > 0:
-            res[f"{name}_max"] = series.max()
-            res[f"{name}_median"] = series.median()
-            res[f"{name}_mean"] = series.mean()
-            res[f"{name}_min"] = series.min()
-            res[f"{name}_std"] = series.std()
-        return res
-
     features = {}
     indicated_vert_rate = trajectory.vertical_rate
     measured_climb_rate = trajectory.altitude.diff() * 60
@@ -103,12 +131,12 @@ def calculate_traj_features(trajectory, flight_info):
         return features  # TODO: for now
 
     measured_ground = dep.altitude.min()
-    on_ground = dep[dep.altitude - measured_ground <= 100]  # 100 ft
-    # if len(on_ground) >= 10:
-    #     takeoff_feat = calculate_takeoff_features(on_ground)
-    #     features.update(takeoff_feat)
+    on_ground = dep[dep.altitude - measured_ground <= 200]  # 100 ft
+    if len(on_ground) >= 10:
+        takeoff_feat = calculate_takeoff_features(on_ground)
+        features.update(takeoff_feat)
 
-    climb = dep[dep.altitude - measured_ground > 100]
+    climb = dep[dep.altitude - measured_ground > 200]
     if len(climb) >= 10:
         climb_rate_feat = calculate_climb_features(climb)
         features.update(climb_rate_feat)
