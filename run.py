@@ -12,6 +12,7 @@ from utils.data_loader import DataLoader
 from preprocessing.aircraft_performance import add_aircraft_performance_data
 from preprocessing.weather import add_weather_data
 from preprocessing.runway import add_runway_data
+from preprocessing.statistics import add_statistics_data
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
@@ -35,12 +36,19 @@ def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
 
+    # challenge.df = pd.read_parquet("preprocessed_latest.parquet")
+
+    challenge = add_statistics_data(challenge)
     challenge = add_weather_data(challenge)
     challenge = add_aircraft_performance_data(challenge)
     challenge = add_runway_data(challenge)
 
+    challenge.df.to_parquet("preprocessed_latest.parquet")
+
     datetime_cols = ["date", "actual_offblock_time", "arrival_time", "valid"]
     for c in datetime_cols:
+        if c not in challenge.df.columns:
+            continue
         challenge.df[c] = pd.to_datetime(challenge.df[c]).astype(int)
 
     train_df, val_df = challenge.split(train_percent=0.8)
