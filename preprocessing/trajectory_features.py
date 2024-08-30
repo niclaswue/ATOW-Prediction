@@ -14,6 +14,8 @@ def load_airports():
 def get_near_airport_traj(trajectory, ap):
     aps = load_airports()
     # find near adep
+    if ap not in aps.ident.unique():
+        return trajectory.head(0)
 
     lat, lon, alt_ft = aps[aps["ident"] == ap][
         ["latitude_deg", "longitude_deg", "elevation_ft"]
