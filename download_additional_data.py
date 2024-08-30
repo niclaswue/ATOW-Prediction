@@ -2,9 +2,11 @@ import urllib.request
 from pathlib import Path
 from tqdm import tqdm
 
+Path("statistics_data").mkdir(exist_ok=True)
+Path("runway_data").mkdir(exist_ok=True)
+
 
 def download(url, out_path, total=1):
-    Path("statistics_data").mkdir(exist_ok=True)
     with tqdm(total=total) as pbar:
         hook = lambda a, b, c: pbar.update(1)
         urllib.request.urlretrieve(url, out_path, reporthook=hook)
