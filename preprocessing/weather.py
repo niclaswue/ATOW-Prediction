@@ -78,6 +78,8 @@ def weather_data():
     for col in numeric_cols:
         wdf[col] = pd.to_numeric(wdf[col].replace("M", "0"), errors="coerce")
 
+    wdf = wdf.drop(columns=["metar"])
+    wdf["station"] = wdf["station"].astype(str)
     print("Done")
     return wdf
 
@@ -89,46 +91,47 @@ def weather_for_airport(airport):
 
 
 def add_weather_data(dataset: Dataset):
-    dataset.df["arrival_time"] = pd.to_datetime(dataset.df["arrival_time"])
 
     weather_dfs = []
+    dataset.df["actual_offblock_time"] = pd.to_datetime(
+        dataset.df["actual_offblock_time"]
+    )
+    offblock_td = dataset.df["taxiout_time"].apply(lambda t: pd.Timedelta(minutes=t))
+    dataset.df["takeoff_time"] = dataset.df["actual_offblock_time"] + offblock_td
 
-    for airport in tqdm(dataset.df.ades.unique(), desc="Processing airports"):
-        wdf = weather_for_airport(airport)
-        # rename cols with prefix
-        wdf = wdf.add_prefix("ades_")
-        wdf = wdf.rename(columns={"ades_valid": "valid", "ades_station": "ades"})
+    for mode in ["adep", "ades"]:
+        for airport in tqdm(
+            dataset.df[mode].unique(), desc=f"Processing {mode} airports"
+        ):
+            key = "arrival_time" if mode == "ades" else "takeoff_time"
+            dataset.df[key] = pd.to_datetime(dataset.df[key])
+            wdf = weather_for_airport(airport)
+            # rename cols with prefix
+            wdf = wdf.add_prefix(f"weather_{mode}_")
+            wdf = wdf.rename(
+                columns={
+                    f"weather_{mode}_valid": "valid",
+                    f"weather_{mode}_station": f"{mode}",
+                }
+            )
 
-        mask = dataset.df.ades == airport
-        adf = dataset.df[mask].sort_values(["arrival_time"])
+            mask = dataset.df[mode] == airport
+            adf = dataset.df[mask].sort_values([key])
 
-        merged = pd.merge_asof(
-            left=adf,
-            right=wdf,
-            left_on="arrival_time",
-            right_on="valid",
-            by="ades",
-            direction="nearest",
-            tolerance=pd.Timedelta("1h"),
-        )
-
-        merged = merged.drop(columns=["ades_metar"])
+            merged = pd.merge_asof(
+                left=adf,
+                right=wdf,
+                left_on=key,
+                right_on="valid",
+                by=f"{mode}",
+                direction="nearest",
+                tolerance=pd.Timedelta("1h"),
+            )
 
         weather_dfs.append(merged)
+        dataset.df = pd.concat(weather_dfs, ignore_index=True)
 
-    dataset.df = pd.concat(weather_dfs, ignore_index=True)
-
-    # Sort the DataFrame back to its original order
-    dataset.df = dataset.df.sort_index()
+        # Sort the DataFrame back to its original order
+        dataset.df = dataset.df.sort_index()
 
     return dataset
-
-
-# Example usage
-if __name__ == "__main__":
-    # Assuming you have a Dataset object
-    dataset = Dataset(...)  # Initialize your dataset
-    dataset_with_weather = add_weather_data(dataset)
-
-    # Further processing or analysis can be done here
-    print(dataset_with_weather.df.head())

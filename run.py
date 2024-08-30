@@ -35,11 +35,18 @@ def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
 
+    # faster than object comparison for weather
+    challenge.df["ades"] = challenge.df["ades"].astype(str)
+    challenge.df["adep"] = challenge.df["adep"].astype(str)
+
     challenge = add_weather_data(challenge)
     challenge = add_aircraft_performance_data(challenge)
     challenge = add_runway_data(challenge)
 
-    datetime_cols = ["date", "actual_offblock_time", "arrival_time", "valid"]
+    # TODO: Investigate where these are added and what they contain exactly
+    challenge.df = challenge.df.drop(columns=["valid_x", "valid_y", "valid"])
+
+    datetime_cols = ["date", "actual_offblock_time", "arrival_time", "takeoff_time"]
     for c in datetime_cols:
         challenge.df[c] = pd.to_datetime(challenge.df[c]).astype(int)
 
