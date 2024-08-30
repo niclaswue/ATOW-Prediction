@@ -31,11 +31,11 @@ def add_runway_data(dataset: Dataset):
 
     # Add new columns for 'ades' information
     for col in ades_info.columns:
-        dataset.df[f"ades_{col}"] = ades_info[col]
+        dataset.df[f"runway_ades_{col}"] = ades_info[col]
 
     # Add new columns for 'adep' information
     for col in adep_info.columns:
-        dataset.df[f"adep_{col}"] = adep_info[col]
+        dataset.df[f"runway_adep_{col}"] = adep_info[col]
 
     print("Done.")
     return dataset
