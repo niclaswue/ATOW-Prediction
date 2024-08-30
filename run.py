@@ -34,9 +34,14 @@ MODELS: List[BaseModel] = [xgb]
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
-    # challenge = add_weather_data(challenge)
+
+    challenge = add_weather_data(challenge)
     challenge = add_aircraft_performance_data(challenge)
     challenge = add_runway_data(challenge)
+
+    datetime_cols = ["date", "actual_offblock_time", "arrival_time", "valid"]
+    for c in datetime_cols:
+        challenge.df[c] = pd.to_datetime(challenge.df[c]).astype(int)
 
     train_df, val_df = challenge.split(train_percent=0.8)
 

@@ -46,48 +46,89 @@ def weather_data():
         Path(__file__).parents[1] / "weather_data" / "all_weather.tsv",
         sep="\t",
         index_col=0,
+        low_memory=False,
+        dtype={col: str for col in cols if col.startswith("skyc")},
     )
     wdf["valid"] = pd.to_datetime(wdf.valid, utc=True)
-    wdf = wdf.sort_values(by="valid")
-    wdf = wdf.replace("M", 0)
+
+    # Convert numeric columns
+    numeric_cols = [
+        "tmpf",
+        "dwpf",
+        "relh",
+        "drct",
+        "sknt",
+        "p01i",
+        "alti",
+        "mslp",
+        "vsby",
+        "gust",
+        "skyl1",
+        "skyl2",
+        "skyl3",
+        "skyl4",
+        "ice_accretion_1hr",
+        "ice_accretion_3hr",
+        "ice_accretion_6hr",
+        "peak_wind_gust",
+        "peak_wind_drct",
+        "feel",
+        "snowdepth",
+    ]
+    for col in numeric_cols:
+        wdf[col] = pd.to_numeric(wdf[col].replace("M", "0"), errors="coerce")
+
+    print("Done")
     return wdf
 
 
 @cache
-def weather_change_features(ades, arr_time):
+def weather_for_airport(airport):
     wdf = weather_data()
-
-    # Filter the dataframe for the specific airport
-    closest = wdf[(wdf.station == ades) & (wdf.valid == arr_time)]
-
-    # one_h_before = df[(df.valid > arr_time - timedelta(hours=1))].head(1)
-    # one_h_after = df[(df.valid < arr_time + timedelta(hours=1))].tail(1)
-    # three_h_before = df[(df.valid > arr_time - timedelta(hours=3))].head(1)
-    # three_h_after = df[(df.valid < arr_time + timedelta(hours=3))].tail(1)
-
-    # result = pd.concat(
-    #     [closest, one_h_before, one_h_after, three_h_before, three_h_after]
-    # )[cols]
-
-    return closest  # result
+    return wdf[wdf.station == airport].sort_values(["valid"])
 
 
 def add_weather_data(dataset: Dataset):
-    tqdm.pandas()
     dataset.df["arrival_time"] = pd.to_datetime(dataset.df["arrival_time"])
-    dataset.df["rounded_arrival_time"] = dataset.df["arrival_time"].dt.round("30min")
-    metar = dataset.df.progress_apply(
-        lambda x: weather_change_features(x.ades, x.rounded_arrival_time), axis=1
-    )
-    from IPython import embed
 
-    embed()
-    exit()  # TODO: Remove DBG
+    weather_dfs = []
 
-    # dataset.df["mtow"] = dataset.df["aircraft_type"].progress_apply(
-    #     lambda x: props_for_aircraft(x)["mtow"]
-    # )
-    # dataset.df["mlw"] = dataset.df["aircraft_type"].progress_apply(
-    #     lambda x: props_for_aircraft(x)["mlw"]
-    # )
+    for airport in tqdm(dataset.df.ades.unique(), desc="Processing airports"):
+        wdf = weather_for_airport(airport)
+        # rename cols with prefix
+        wdf = wdf.add_prefix("ades_")
+        wdf = wdf.rename(columns={"ades_valid": "valid", "ades_station": "ades"})
+
+        mask = dataset.df.ades == airport
+        adf = dataset.df[mask].sort_values(["arrival_time"])
+
+        merged = pd.merge_asof(
+            left=adf,
+            right=wdf,
+            left_on="arrival_time",
+            right_on="valid",
+            by="ades",
+            direction="nearest",
+            tolerance=pd.Timedelta("1h"),
+        )
+
+        merged = merged.drop(columns=["ades_metar"])
+
+        weather_dfs.append(merged)
+
+    dataset.df = pd.concat(weather_dfs, ignore_index=True)
+
+    # Sort the DataFrame back to its original order
+    dataset.df = dataset.df.sort_index()
+
     return dataset
+
+
+# Example usage
+if __name__ == "__main__":
+    # Assuming you have a Dataset object
+    dataset = Dataset(...)  # Initialize your dataset
+    dataset_with_weather = add_weather_data(dataset)
+
+    # Further processing or analysis can be done here
+    print(dataset_with_weather.df.head())
