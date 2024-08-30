@@ -7,43 +7,52 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 import xgboost
+import lightgbm as lgb
 
 from utils.data_loader import DataLoader
 from preprocessing.aircraft_performance import add_aircraft_performance_data
 from preprocessing.weather import add_weather_data
 from preprocessing.runway import add_runway_data
 from preprocessing.statistics import add_statistics_data
+from preprocessing.augment_features import augment_features
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
 from models.ensemble import EnsembleModel
+from models.autogluon_model import AutogluonModel
 from models.scikit_learn_model import ScikitLearnModel
 from evals.metrics import MetricEvals
 from evals.compare_models import CompareModelsEval
 from visualizations.compare_models import plot_metric_overview
 
 
-rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 1, "verbose": 5})
+rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
+lgbm = ScikitLearnModel(
+    lgb.LGBMRegressor,
+    {"n_estimators": 1000, "n_jobs": 4, "callbacks": [lgb.early_stopping(50)]},
+)
+ag = AutogluonModel()
+
 # knn = ScikitLearnModel(KNeighborsRegressor, {"n_neighbors": 10, "weights": "distance"})
 ensemble = EnsembleModel([xgb, rf_model])
 
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [xgb]
+MODELS: List[BaseModel] = [ag, lgbm, xgb]
 
 
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
 
-    # challenge.df = pd.read_parquet("preprocessed_latest.parquet")
+    challenge.df = pd.read_parquet("preprocessed_latest.parquet")
 
-    challenge = add_statistics_data(challenge)
-    challenge = add_weather_data(challenge)
-    challenge = add_aircraft_performance_data(challenge)
-    challenge = add_runway_data(challenge)
+    # challenge = add_statistics_data(challenge)
+    # challenge = add_weather_data(challenge)
+    # challenge = add_aircraft_performance_data(challenge)
+    # challenge = add_runway_data(challenge)
 
-    challenge.df.to_parquet("preprocessed_latest.parquet")
+    # challenge.df.to_parquet("preprocessed_latest.parquet")
 
     datetime_cols = ["date", "actual_offblock_time", "arrival_time", "valid"]
     for c in datetime_cols:
@@ -52,6 +61,7 @@ def main():
         challenge.df[c] = pd.to_datetime(challenge.df[c]).astype(int)
 
     train_df, val_df = challenge.split(train_percent=0.8)
+    # train_df, val_df = augment_features(train_df, val_df, y="tow")
 
     model_predictions = {}
     for model in MODELS:
