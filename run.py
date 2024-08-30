@@ -26,6 +26,9 @@ from evals.metrics import MetricEvals
 from evals.compare_models import CompareModelsEval
 from visualizations.compare_models import plot_metric_overview
 
+import warnings
+
+warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
@@ -46,15 +49,15 @@ def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
 
-    challenge.df = pd.read_parquet("preprocessed_latest.parquet")
+    # challenge.df = pd.read_parquet("preprocessed_latest.parquet")
     challenge = add_trajectory_features(challenge)
 
-    # challenge = add_statistics_data(challenge)
-    # challenge = add_weather_data(challenge)
-    # challenge = add_aircraft_performance_data(challenge)
-    # challenge = add_runway_data(challenge)
+    challenge = add_statistics_data(challenge)
+    challenge = add_weather_data(challenge)
+    challenge = add_aircraft_performance_data(challenge)
+    challenge = add_runway_data(challenge)
 
-    # challenge.df.to_parquet("preprocessed_latest.parquet")
+    challenge.df.to_parquet("preprocessed_latest.parquet")
 
     datetime_cols = ["date", "actual_offblock_time", "arrival_time", "valid"]
     for c in datetime_cols:
