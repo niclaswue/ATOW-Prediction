@@ -11,12 +11,17 @@ def download(url, out_path, total=1):
     print("Done")
 
 
+URL = "https://davidmegginson.github.io/ourairports-data/airports.csv"
+out_path = "runway_data/airports.csv"
+size = 1442
+download(URL, out_path, size)
+
 URL = "https://davidmegginson.github.io/ourairports-data/runways.csv"
 out_path = "runway_data/runways.csv"
-total = 481
-download(URL, out_path, total)
+size = 481
+download(URL, out_path, size)
 
 URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/avia_tf_apal?format=SDMX-CSV&compressed=false"
 out_path = "statistics_data/estat_avia_tf_apal_en.csv"
-total = 16159
-download(URL, out_path, total)
+size = 16159
+download(URL, out_path, size)
