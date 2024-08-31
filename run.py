@@ -15,7 +15,8 @@ from preprocessing.weather import add_weather_data
 from preprocessing.runway import add_runway_data
 from preprocessing.statistics import add_statistics_data
 from preprocessing.trajectory_features import add_trajectory_features
-from preprocessing.augment_features import augment_features
+
+# from preprocessing.augment_features import augment_features
 from models.base_model import BaseModel
 from models.average_model import AverageModel
 from models.median_model import MedianModel
@@ -30,6 +31,7 @@ import warnings
 
 warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
+# linear regression ensembling catboost, lightgbm, autogluon, xgboost with openFE and feature importance selection
 rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
 lgbm = ScikitLearnModel(
@@ -42,7 +44,7 @@ ag = AutogluonModel()
 ensemble = EnsembleModel([xgb, rf_model])
 
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [xgb]
+MODELS: List[BaseModel] = [xgb, ag]
 
 
 def main():
