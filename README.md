@@ -38,3 +38,4 @@ Taxi out time: https://www.transtats.bts.gov/ONTIME/OriginDestination.aspx
 https://www.transtats.bts.gov/ONTIME/Departures.aspx
 
 https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGJ&QO_fu146_anzr=b0-gvzr
+https://www.bts.gov/browse-statistical-products-and-data/bts-publications/data-bank-28ds-t-100-domestic-segment-data
