@@ -27,8 +27,3 @@ objects = reversed(objects)  # to get csv files first
 for obj in tqdm(objects):
     print(f"Downloading {obj.object_name}")
     s3.download_object(obj, filename=Path("data"))
-
-from IPython import embed
-
-embed()
-exit()  # TODO: Remove DBG
