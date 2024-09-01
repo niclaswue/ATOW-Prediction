@@ -2,31 +2,32 @@ import pandas as pd
 from utils.dataset import Dataset
 from tqdm import tqdm
 from functools import cache
+from pathlib import Path
 
-print("Loading statistics..")
-# https://ec.europa.eu/eurostat/cache/metadata/en/avia_pa_esms.htm
-sdf = pd.read_csv("statistics_data/estat_avia_tf_apal_en.csv")
-sdf.drop(columns=["OBS_FLAG", "DATAFLOW", "LAST UPDATE", "freq"], inplace=True)
-
-sdf["TIME_PERIOD"] = sdf["TIME_PERIOD"].astype(str)
-sdf["rep_airp"] = sdf["rep_airp"].astype(str)
-
-# to make it faster, if another year add condition
-sdf = sdf[sdf["TIME_PERIOD"].str.startswith("2022-", na=False)]
+base_dir = Path("additional_data/airport_data/")
 
 
 @cache
-def _data_for_ap(airport):
-    result = sdf[sdf.rep_airp == airport]
-    if len(result) == 0:
-        print(f"NO data for AP: {airport}")
-    return result
+def load_statistics():
+    print("Loading statistics..")
+    # https://ec.europa.eu/eurostat/cache/metadata/en/avia_pa_esms.htm
+    sdf = pd.read_csv(base_dir / "estat_avia_tf_apal_en.csv")
+    sdf.drop(columns=["OBS_FLAG", "DATAFLOW", "LAST UPDATE", "freq"], inplace=True)
+
+    sdf["TIME_PERIOD"] = sdf["TIME_PERIOD"].astype(str)
+    sdf["rep_airp"] = sdf["rep_airp"].astype(str)
+
+    # to make it faster, if another year add condition
+    sdf = sdf[sdf["TIME_PERIOD"].str.startswith("2022-", na=False)]
+    return sdf
 
 
 def _get_statistic_data(year, month, airport):
-    stats = _data_for_ap(airport)
-    stats = stats[stats["TIME_PERIOD"] == f"{year}-{month:0>2}"]
+    sdf = load_statistics()
+    mask = (sdf.rep_airp == airport) & (stats["TIME_PERIOD"] == f"{year}-{month:0>2}")
+    stats = sdf[mask]
     if len(stats) == 0:
+        print(f"NO data for AP: {airport} at {year}-{month}")
         return stats
 
     df_pivot = stats.pivot_table(
@@ -44,6 +45,7 @@ def _get_statistic_data(year, month, airport):
 
 
 def add_airport_pax_flow(dataset: Dataset):
+    sdf = load_statistics()
     # Extract year and month once
     dataset.df["year"] = pd.to_datetime(dataset.df["date"]).dt.year
     dataset.df["month"] = pd.to_datetime(dataset.df["date"]).dt.month
@@ -102,9 +104,8 @@ def add_airport_pax_flow(dataset: Dataset):
 
 def add_fuel_price_data(dataset):
     print("Adding fuel price data...")
-    fuel_df = pd.read_csv(
-        "statistics_data/fuel_prices_20_06_2022.csv", encoding="latin-1"
-    )
+    fuel_df = pd.read_csv(base_dir / "fuel_prices_20_06_2022.csv", encoding="latin-1")
+    country_codes = pd.read_csv(base_dir / "country_codes.csv")
     fuel_df = fuel_df[["Country", "Price Per Liter (USD)"]]
 
     from IPython import embed
