@@ -5,7 +5,7 @@ from models.base_model import BaseModel
 
 class AutogluonModel(BaseModel):
 
-    def __init__(self, time_limit=8 * 3600, name: str = "autogluon"):
+    def __init__(self, time_limit=5 * 60, name: str = "autogluon"):
         super().__init__(name)
         self.time_limit = time_limit
 

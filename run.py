@@ -13,7 +13,11 @@ from utils.data_loader import DataLoader
 from preprocessing.aircraft_performance import add_aircraft_performance_data
 from preprocessing.weather import add_weather_data
 from preprocessing.runway import add_runway_data
-from preprocessing.statistics import add_statistics_data
+from preprocessing.airport_information import (
+    add_airport_pax_flow,
+    add_fuel_price_data,
+)
+from preprocessing.derived_features import add_derived_features
 from preprocessing.trajectory_features import add_trajectory_features
 
 # from preprocessing.augment_features import augment_features
@@ -38,7 +42,7 @@ lgbm = ScikitLearnModel(
     lgb.LGBMRegressor,
     {"n_estimators": 1000, "n_jobs": 4, "callbacks": [lgb.early_stopping(50)]},
 )
-ag = AutogluonModel()
+ag = AutogluonModel(time_limit=5 * 60)
 
 # knn = ScikitLearnModel(KNeighborsRegressor, {"n_neighbors": 10, "weights": "distance"})
 ensemble = EnsembleModel([xgb, rf_model])
@@ -52,9 +56,12 @@ def main():
     challenge, submission, final_submission, trajectories = loader.load()
 
     # challenge.df = pd.read_parquet("preprocessed_latest.parquet")
-    challenge = add_trajectory_features(challenge)
+    # challenge = add_trajectory_features(challenge)
+    challenge.df = challenge.df.sample(500)
 
-    challenge = add_statistics_data(challenge)
+    challenge = add_fuel_price_data(challenge)
+    challenge = add_airport_pax_flow(challenge)
+    challenge = add_derived_features(challenge)
     challenge = add_weather_data(challenge)
     challenge = add_aircraft_performance_data(challenge)
     challenge = add_runway_data(challenge)
