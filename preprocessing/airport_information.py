@@ -105,12 +105,28 @@ def add_airport_pax_flow(dataset: Dataset):
 def add_fuel_price_data(dataset):
     print("Adding fuel price data...")
     fuel_df = pd.read_csv(base_dir / "fuel_prices_20_06_2022.csv", encoding="latin-1")
-    country_codes = pd.read_csv(base_dir / "country_codes.csv")
     fuel_df = fuel_df[["Country", "Price Per Liter (USD)"]]
+    fuel_df = fuel_df.rename(columns={"Country": "name"})
 
-    from IPython import embed
+    country_codes = pd.read_csv(base_dir / "country_codes.csv")
+    country_codes = country_codes[["name", "alpha-2"]]
+    fuel_df = pd.merge(fuel_df, country_codes, on="name").drop(columns="name")
 
-    embed()
-    exit()  # TODO: Remove DBG
+    fuel_adep = fuel_df.rename(
+        columns={
+            "alpha-2": "country_code_adep",
+            "Price Per Liter (USD)": "fuel_price_adep",
+        }
+    )
+    dataset.df = pd.merge(dataset.df, fuel_adep, on="country_code_adep")
+
+    fuel_ades = fuel_df.rename(
+        columns={
+            "alpha-2": "country_code_ades",
+            "Price Per Liter (USD)": "fuel_price_ades",
+        }
+    )
+    dataset.df = pd.merge(dataset.df, fuel_ades, on="country_code_ades")
+
     print("Done.")
     return dataset
