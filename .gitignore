@@ -466,3 +466,4 @@ AutogluonModels/
 runway_data/airports.csv
 runway_data/runways.csv
 statistics_data/estat_avia_tf_apal_en.csv
+statistics_data/T_T100_SEGMENT_ALL_CARRIER_*.csv
