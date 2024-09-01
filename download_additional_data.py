@@ -1,6 +1,9 @@
 import urllib.request
 from pathlib import Path
 from tqdm import tqdm
+from pathlib import Path
+import requests
+import zipfile
 
 
 def download(url, out_path, total=1):
@@ -11,6 +14,29 @@ def download(url, out_path, total=1):
         urllib.request.urlretrieve(url, str(out_path), reporthook=hook)
     print("Done")
 
+
+def download_and_extract_zip(url, output_dir):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(exist_ok=True, parents=True)
+
+    zip_path = output_dir / "temp.zip"
+
+    # Download and save the zip file
+    zip_path.write_bytes(requests.get(url).content)
+
+    # Extract the zip file
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(output_dir)
+
+    # Delete the zip file
+    zip_path.unlink()
+
+
+URL = "https://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=cmID:JF&DataMartId=EDATA&Format=csv&c=2,5,6,7,8&s=_crEngNameOrderBy:asc,_enID:asc,yr:desc"
+out_dir = Path("additional_data") / "airport_data" / "fuel"
+download_and_extract_zip(URL, out_dir)
+next(out_dir.glob("UNdata_Export*.csv")).rename(out_dir.parent / "UN_fuel_data.csv")
+out_dir.rmdir()
 
 URL = "https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/all/all.csv"
 out_path = "airport_data/country_codes.csv"
