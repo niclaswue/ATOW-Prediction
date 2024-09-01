@@ -27,3 +27,8 @@ URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/avia_tf_apa
 out_path = "statistics_data/estat_avia_tf_apal_en.csv"
 size = 16159
 download(URL, out_path, size)
+
+
+# TODO
+# https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FMG&QO_fu146_anzr=Nv4%20Pn44vr45
+# Download month by month T-100 segment data (All carriers) unzip and put all files into statistics data
