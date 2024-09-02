@@ -1,7 +1,8 @@
 # This script can be used to execute the whole pipeline.
 from pathlib import Path
-from typing import List
+from typing import List, Callable
 from pprint import pprint
+import warnings
 
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
@@ -22,8 +23,6 @@ from preprocessing.trajectory_features import add_trajectory_features
 
 # from preprocessing.augment_features import augment_features
 from models.base_model import BaseModel
-from models.average_model import AverageModel
-from models.median_model import MedianModel
 from models.ensemble import EnsembleModel
 from models.autogluon_model import AutogluonModel
 from models.scikit_learn_model import ScikitLearnModel
@@ -31,40 +30,36 @@ from evals.metrics import MetricEvals
 from evals.compare_models import CompareModelsEval
 from visualizations.compare_models import plot_metric_overview
 
-import warnings
-
 warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 # linear regression ensembling catboost, lightgbm, autogluon, xgboost with openFE and feature importance selection
 rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
-lgbm = ScikitLearnModel(
-    lgb.LGBMRegressor,
-    {"n_estimators": 1000, "n_jobs": 4, "callbacks": [lgb.early_stopping(50)]},
-)
-ag = AutogluonModel(time_limit=5 * 60)
+ag = AutogluonModel(time_limit=10 * 60 * 60)
 
-# knn = ScikitLearnModel(KNeighborsRegressor, {"n_neighbors": 10, "weights": "distance"})
 ensemble = EnsembleModel([xgb, rf_model])
 
 EVALS = [MetricEvals()]
-MODELS: List[BaseModel] = [xgb, ag]
+MODELS: List[BaseModel] = [ag]
+FEATURES: List[Callable] = [
+    add_fuel_price_data,
+    add_airport_pax_flow,
+    add_derived_features,
+    add_aircraft_performance_data,
+    add_runway_data,
+    add_weather_data,
+]
+# add_trajectory_features
+#
 
 
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
 
-    # challenge.df = pd.read_parquet("preprocessed_latest.parquet")
-    # challenge = add_trajectory_features(challenge)
-    challenge.df = challenge.df.sample(500)
-
-    challenge = add_fuel_price_data(challenge)
-    challenge = add_airport_pax_flow(challenge)
-    challenge = add_derived_features(challenge)
-    challenge = add_weather_data(challenge)
-    challenge = add_aircraft_performance_data(challenge)
-    challenge = add_runway_data(challenge)
+    challenge.df = pd.read_parquet("preprocessed_latest_w_traj.parquet")
+    for preprocessing_func in FEATURES:
+        challenge = preprocessing_func(challenge)
 
     challenge.df.to_parquet("preprocessed_latest.parquet")
 
