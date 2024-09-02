@@ -13,7 +13,7 @@ import time
 import zipfile
 
 # time between requests (shorter may be possible, but we want to be nice)
-TIMEOUT = 60  # seconds
+TIMEOUT = 20  # seconds
 
 
 def setup_driver(download_directory):
@@ -138,6 +138,6 @@ if __name__ == "__main__":
     while retries > 0 and not done:
         done = scrape_data(url, download_directory)
         retries -= 1
-        time.sleep(TIMEOUT * 20)  # we likely got detected
+        time.sleep(TIMEOUT * 10)  # we likely got detected
     concat_all_csvs(download_directory)
     print("Done downloading T100.")

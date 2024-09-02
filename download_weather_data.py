@@ -43,7 +43,7 @@ def download_data(uri):
     return ""
 
 
-def save_airport_weather(row, location=Path("weather_data")):
+def save_airport_weather(row, location=Path("additional_data") / "weather_data"):
     processed = location / "processed.txt"
 
     date = row["arrival_date"]
