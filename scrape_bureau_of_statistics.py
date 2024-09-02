@@ -91,27 +91,28 @@ def scrape_data(url, download_directory):
         ]
         existing_dirs = list(download_directory.glob("*_*"))
         existing = [d.name.split("_") for d in existing_dirs if d.is_dir()]
+
         print("Starting...")
-        for year in tqdm(year_options):
-            for month in tqdm(month_options):
-                if [year, month] in existing:
-                    print(f"Already downloaded {year}-{month}. Skipping")
-                    continue
-                try:
-                    time.sleep(TIMEOUT)
-                    Select(year_dropdown).select_by_value(year)
-                    Select(month_dropdown).select_by_value(month)
+        combinations = [(y, m) for y in year_options for m in month_options]
+        for year, month in tqdm(combinations):
+            if [year, month] in existing:
+                print(f"Already downloaded {year}-{month}. Skipping!")
+                continue
+            try:
+                time.sleep(TIMEOUT)
+                Select(year_dropdown).select_by_value(year)
+                Select(month_dropdown).select_by_value(month)
 
-                    download_button = wait_for_element(driver, By.ID, "btnDownload")
-                    download_button.click()
+                download_button = wait_for_element(driver, By.ID, "btnDownload")
+                download_button.click()
 
-                    downloaded_file = wait_for_download_to_start(download_directory)
-                    rename_and_extract(downloaded_file, download_directory, year, month)
-                except Exception as e:
-                    print("Received error:")
-                    print(e.__repr__())
-                    print("Skipping.")
-                    time.sleep(TIMEOUT * 10)
+                downloaded_file = wait_for_download_to_start(download_directory)
+                rename_and_extract(downloaded_file, download_directory, year, month)
+            except Exception as e:
+                print("Received error:")
+                print(e.__repr__())
+                print("Skipping.")
+                time.sleep(TIMEOUT * 10)
 
     except Exception as e:
         print(f"A fatal error occurred: {e}")

@@ -463,11 +463,4 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,visualstudiocode,macos,linux,windows,git
 AutogluonModels/
 *.feather
-runway_data/airports.csv
-runway_data/runways.csv
-statistics_data/estat_avia_tf_apal_en.csv
-statistics_data/T_T100_SEGMENT_ALL_CARRIER_*.csv
-additional_data/airport_data/country_codes.csv
-additional_data/airport_data/estat_avia_tf_apal_en.csv
-additional_data/runway_data/airports.csv
-additional_data/runway_data/runways.csv
+*.csv
