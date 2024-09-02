@@ -1,3 +1,4 @@
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -117,6 +118,16 @@ def scrape_data(url, download_directory):
         driver.quit()
 
 
+def concat_all_csvs(dir):
+    print("Concatting all tables...")
+    paths = dir.rglob("*T100_SEGMENT_ALL_CARRIER.csv")
+    dfs = []
+    for p in tqdm(paths):
+        dfs.append(pd.read_csv(p))
+    df = pd.concat(dfs)
+    df.to_parquet(dir / "t100_segment_data.parquet")
+
+
 if __name__ == "__main__":
     url = "https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FMG&QO_fu146_anzr=Nv4+Pn44vr45"
     download_directory = Path("additional_data/T100_data")
@@ -128,3 +139,5 @@ if __name__ == "__main__":
         done = scrape_data(url, download_directory)
         retries -= 1
         time.sleep(TIMEOUT * 20)  # we likely got detected
+    concat_all_csvs(download_directory)
+    print("Done downloading T100.")
