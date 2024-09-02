@@ -461,6 +461,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,visualstudiocode,macos,linux,windows,git
-AutogluonModels/
 *.feather
 *.csv
+AutogluonModels
