@@ -24,7 +24,7 @@ def load_statistics():
 
 def _get_statistic_data(year, month, airport):
     sdf = load_statistics()
-    mask = (sdf.rep_airp == airport) & (stats["TIME_PERIOD"] == f"{year}-{month:0>2}")
+    mask = (sdf["rep_airp"] == airport) & (sdf["TIME_PERIOD"] == f"{year}-{month:0>2}")
     stats = sdf[mask]
     if len(stats) == 0:
         print(f"NO data for AP: {airport} at {year}-{month}")
@@ -106,8 +106,21 @@ def add_fuel_price_data(dataset):
     print("Adding fuel price data...")
     fuel_df = pd.read_csv(base_dir / "fuel_prices_20_06_2022.csv", encoding="latin-1")
     fuel_df = fuel_df[["Country", "Price Per Liter (USD)"]]
-    fuel_df = fuel_df.rename(columns={"Country": "name"})
 
+    un = pd.read_csv(base_dir / "UN_fuel_data.csv")
+    un = un.rename(columns={"Country or Area": "Country"})
+    un = un[un["Year"] == 2022]
+
+    un = un.pivot_table(
+        index="Country", columns=["Commodity - Transaction"], values=["Quantity"]
+    )
+    # TODO: Fix UN data => merging
+    un.columns = ["_".join(col).strip() for col in un.columns.values]
+    un = un.reset_index()
+
+    fuel_df = pd.merge(fuel_df, un, on="Country")
+
+    fuel_df = fuel_df.rename(columns={"Country": "name"})
     country_codes = pd.read_csv(base_dir / "country_codes.csv")
     country_codes = country_codes[["name", "alpha-2"]]
     fuel_df = pd.merge(fuel_df, country_codes, on="name").drop(columns="name")
