@@ -13,7 +13,7 @@ class AutogluonModel(BaseModel):
         train_data = TabularDataset(training_df)
         predictor = TabularPredictor(
             label="tow",
-            verbosity=0,
+            verbosity=2,
             log_to_file=True,
             log_file_path="/home/niclas/ATOW-Prediction/autogluon.log",
         ).fit(train_data, time_limit=self.time_limit, presets=["high_quality"])
