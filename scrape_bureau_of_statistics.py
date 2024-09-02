@@ -93,26 +93,22 @@ def scrape_data(url, download_directory):
         existing = [d.name.split("_") for d in existing_dirs if d.is_dir()]
 
         print("Starting...")
-        combinations = [(y, m) for y in year_options for m in month_options]
+        combinations = [[y, m] for y in year_options for m in month_options]
+        combinations = [c for c in combinations if c not in existing]
+        if len(combinations) == 0:
+            print("Seems like we are done scraping everything.")
+            return True
+
         for year, month in tqdm(combinations):
-            if [year, month] in existing:
-                print(f"Already downloaded {year}-{month}. Skipping!")
-                continue
-            try:
-                time.sleep(TIMEOUT)
-                Select(year_dropdown).select_by_value(year)
-                Select(month_dropdown).select_by_value(month)
+            time.sleep(TIMEOUT)
+            Select(year_dropdown).select_by_value(year)
+            Select(month_dropdown).select_by_value(month)
 
-                download_button = wait_for_element(driver, By.ID, "btnDownload")
-                download_button.click()
+            download_button = wait_for_element(driver, By.ID, "btnDownload")
+            download_button.click()
 
-                downloaded_file = wait_for_download_to_start(download_directory)
-                rename_and_extract(downloaded_file, download_directory, year, month)
-            except Exception as e:
-                print("Received error:")
-                print(e.__repr__())
-                print("Skipping.")
-                time.sleep(TIMEOUT * 10)
+            downloaded_file = wait_for_download_to_start(download_directory)
+            rename_and_extract(downloaded_file, download_directory, year, month)
 
     except Exception as e:
         print(f"A fatal error occurred: {e}")
@@ -126,4 +122,9 @@ if __name__ == "__main__":
     download_directory = Path("additional_data/T100_data")
     download_directory.mkdir(exist_ok=True)
 
-    scrape_data(url, download_directory)
+    done = False
+    retries = 35 * 12  # 35 years if only one month download goes through
+    while retries > 0 and not done:
+        done = scrape_data(url, download_directory)
+        retries -= 1
+        time.sleep(TIMEOUT * 20)  # we likely got detected

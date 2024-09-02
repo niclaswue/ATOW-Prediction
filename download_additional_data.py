@@ -58,6 +58,10 @@ out_path = "airport_data/estat_avia_tf_apal_en.csv"
 size = 16159
 download(URL, out_path, size)
 
+# fuel originally from kaggle
+# https://github.com/RaofaizanAPSACS/PetrolGasPricesWorldWide_EDA/raw/main/Petrol%20Dataset%20June%2023%202022%20--%20Version%202.csv
+
+
 # # could be useful to divide pax / flights?
 # URL = (
 #     "https://www.eurocontrol.int/performance/data/download/csv/airport_traffic_2022.csv"
