@@ -97,6 +97,7 @@ further improvements
 - use neural network as predictor (learn JAX?) 
 - incorporate uncertainty?!
 
+k-fold cross validation to get a good signal without waiting for the leaderboard
 
 clean data remove quasi duplicates with same tow
 
