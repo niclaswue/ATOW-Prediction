@@ -1,5 +1,60 @@
 # ATOW-Prediction
-https://ansperformance.eu/study/data-challenge
+
+This is our entry for the PRC Data Challenge: https://ansperformance.eu/study/data-challenge
+
+## Initial Setup
+### Setup up the development environment
+
+Create a new conda environment with Python 3.11
+```
+conda create -n tow -c conda-forge python=3.11 -y
+conda activate tow
+```
+
+Note: For future trajectory analysis and feature creation, you may want to create another separate environment around traffic.
+See: https://traffic-viz.github.io/installation.html
+
+Install all the required packages:
+```
+pip install -r requirements.txt
+```
+### Downloading all datasets
+
+Now it's time to download the competition data.
+This script will create a new directory called `data` and download the competition data.
+It will start with the mandatory csv files and then continues with the daily trajectories.
+These are 150GB+ in size, you might want to start the script in a screen session.
+You can stop the download anytime, it will automatically resume when started again.
+
+```
+python download_competition_data.py
+```
+
+Next we download the additional datasets that were used to boost the performance. All used datasets, licenses and attribution can be found under the Dataset Overview chapter.
+
+```
+python download_additional_data.py
+```
+This will download the simple to fetch tabular datasets to the `additional_data` directory.
+
+We also use daily METAR weather data. Right now, we only download the METARs for the destination airports.
+The following script will gather all unique destination airports for each day and download the reports for them.
+In the end, they are combined to one large weather dataset. All downloaded links are saved in `processed.txt` which allows you to resume the download if needed.
+```
+python download_weather_data.py
+```
+
+Additionally, in the future, we might use T-100 forms data from the bureau of transportation statistics.
+This data can be downloaded by hand, however for your conveinence we provide a scraper. To not overload the poor server we wait a long time in between requests, therefore the download process will take a long time. 
+
+```
+python scrape_bts_t100.py
+```
+The resulting data is not used right now.
+
+## Dataset Overview
+TODO
+---
 
 
 # TODOs:
@@ -62,3 +117,10 @@ Likely not allowed to use, but could be checked if results improve dramatically 
 https://www.kaggle.com/datasets/heitornunes/aircraft-performance-dataset-aircraft-bluebook/data
 
 Idea from Lukas: Add tax dataset?
+
+Idea for a general plan:
+1. We go very broad and extensively leverage open datasets
+2. We train a small model to find out which features are most important
+3. For these features, we do feature engineerin or include additional datasets from the domain
+4. We clean the existing data and features to reduce noise
+5. We scale up the model to the biggest possible size
