@@ -1,9 +1,13 @@
-IPython
-pyopensky
-scikit-learn
-matplotlib
-plotly
-colorlover
-scikit-learn
-xgboost
-openap
+# inference
+autogluon==1.1.1
+pyopensky==2.8
+colorlover==0.3.0
+openap==2.0
+
+# development
+# ipython==8.27.0
+# matplotlib==3.9.2
+# plotly==5.24.0
+
+# scikit-learn==scikit-learn==1.4.0
+# xgboost==2.0.3
