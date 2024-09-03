@@ -52,3 +52,6 @@ https://www.easa.europa.eu/en/domains/environment/icao-aircraft-engine-emissions
 fuel prices 2022
 https://www.kaggle.com/datasets/zusmani/petrolgas-prices-worldwide/data
 CC0 license - obtained with google
+
+
+Idea from Lukas: Add tax dataset?
