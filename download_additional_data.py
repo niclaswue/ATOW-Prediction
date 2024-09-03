@@ -5,6 +5,8 @@ from pathlib import Path
 import requests
 import zipfile
 
+additional_data_dir = Path("additional_data")
+
 
 def download(url, out_path, total=1):
     out_path = Path("additional_data") / Path(out_path)
@@ -33,13 +35,13 @@ def download_and_extract_zip(url, output_dir):
 
 
 URL = "https://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=cmID:JF&DataMartId=EDATA&Format=csv&c=2,5,6,7,8&s=_crEngNameOrderBy:asc,_enID:asc,yr:desc"
-out_dir = Path("additional_data") / "airport_data" / "tmp"
+out_dir = additional_data_dir / "airport_data" / "tmp"
 download_and_extract_zip(URL, out_dir)
 next(out_dir.glob("UNdata_Export*.csv")).rename(out_dir.parent / "UN_fuel_data.csv")
 out_dir.rmdir()
 
 URL = "https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/all/all.csv"
-out_path = "airport_data/country_codes.csv"
+out_path = additional_data_dir / "airport_data" / "country_codes.csv"
 size = 4
 download(URL, out_path, size)
 
@@ -48,21 +50,21 @@ download(URL, out_path, size)
 # Mirror for avoiding the login
 URL = "https://github.com/RaofaizanAPSACS/PetrolGasPricesWorldWide_EDA/raw/main/Petrol%20Dataset%20June%2023%202022%20--%20Version%202.csv"
 size = 3
-outpath = "airport_data/fuel_prices_20_06_2022.csv"
+outpath = additional_data_dir / "airport_data" / "fuel_prices_20_06_2022.csv"
 download(URL, out_path, size)
 
 URL = "https://davidmegginson.github.io/ourairports-data/airports.csv"
-out_path = "runway_data/airports.csv"
+out_path = additional_data_dir / "runway_data" / "airports.csv"
 size = 1442
 download(URL, out_path, size)
 
 URL = "https://davidmegginson.github.io/ourairports-data/runways.csv"
-out_path = "runway_data/runways.csv"
+out_path = additional_data_dir / "runway_data" / "runways.csv"
 size = 481
 download(URL, out_path, size)
 
 URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/avia_tf_apal?format=SDMX-CSV&compressed=false"
-out_path = "airport_data/estat_avia_tf_apal_en.csv"
+out_path = additional_data_dir / "airport_data" / "estat_avia_tf_apal_en.csv"
 size = 16159
 download(URL, out_path, size)
 
