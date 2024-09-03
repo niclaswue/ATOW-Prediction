@@ -8,10 +8,13 @@ import zipfile
 additional_data_dir = Path("additional_data")
 
 
-def download(url, out_path, total=1):
-    out_path = Path("additional_data") / Path(out_path)
+def download(url, out_path, total=1, force_redownload=False):
     out_path.parent.mkdir(exist_ok=True, parents=True)
-    with tqdm(total=total) as pbar:
+    if out_path.exists() and not force_redownload:
+        print(f"Already downloaded. Skipping {out_path}")
+        return
+
+    with tqdm(total=total, desc=f"Downloading {out_path.name}") as pbar:
         hook = lambda a, b, c: pbar.update(1)
         urllib.request.urlretrieve(url, str(out_path), reporthook=hook)
     print("Done")
@@ -50,7 +53,7 @@ download(URL, out_path, size)
 # Mirror for avoiding the login
 URL = "https://github.com/RaofaizanAPSACS/PetrolGasPricesWorldWide_EDA/raw/main/Petrol%20Dataset%20June%2023%202022%20--%20Version%202.csv"
 size = 3
-outpath = additional_data_dir / "airport_data" / "fuel_prices_20_06_2022.csv"
+out_path = additional_data_dir / "airport_data" / "fuel_prices_20_06_2022.csv"
 download(URL, out_path, size)
 
 URL = "https://davidmegginson.github.io/ourairports-data/airports.csv"
