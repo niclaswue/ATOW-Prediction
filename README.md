@@ -52,8 +52,19 @@ python scrape_bts_t100.py
 ```
 The resulting data is not used right now.
 
+### Prepare the dataset
+TODO: We should maybe separate data preprocessing from the training, so that we can cache the results.
+
+### Run the training
+To run the training, start.
+```
+python run.py
+```
+
+
 ## Dataset Overview
-TODO
+TODO make a list.
+TODO: Provide download links for the preprocessed datasets, otherwise it takes a long time to preprocess the data 
 ---
 
 
