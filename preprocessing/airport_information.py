@@ -27,7 +27,7 @@ def _get_statistic_data(year, month, airport):
     mask = (sdf["rep_airp"] == airport) & (sdf["TIME_PERIOD"] == f"{year}-{month:0>2}")
     stats = sdf[mask]
     if len(stats) == 0:
-        print(f"NO data for AP: {airport} at {year}-{month}")
+        # print(f"NO data for AP: {airport} at {year}-{month}")
         return stats
 
     df_pivot = stats.pivot_table(
@@ -76,7 +76,8 @@ def add_airport_pax_flow(dataset: Dataset):
 
     # Fetch statistics data for each combination and aggregate
     stats_dfs = []
-    for ap, y, m in tqdm(combinations.itertuples(index=False, name=None)):
+    total = len(combinations)
+    for ap, y, m in tqdm(combinations.itertuples(index=False, name=None), total=total):
         stats = _get_statistic_data(y, m, ap)
         if len(stats) == 0:
             continue
