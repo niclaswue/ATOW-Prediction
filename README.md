@@ -57,3 +57,7 @@ CC0 license - obtained with google
 https://data.transportation.gov/Aviation/Consumer-Airfare-Report-Table-1a-All-U-S-Airport-P/tfrh-tu9e/about_data
 
 https://destinationinsights.withgoogle.com/intl/en_ALL/
+
+Likely not allowed to use, but could be checked if results improve dramatically => warrants manual collection of more data
+https://www.kaggle.com/datasets/heitornunes/aircraft-performance-dataset-aircraft-bluebook/data
+
