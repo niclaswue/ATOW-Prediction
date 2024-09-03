@@ -52,3 +52,7 @@ https://www.easa.europa.eu/en/domains/environment/icao-aircraft-engine-emissions
 fuel prices 2022
 https://www.kaggle.com/datasets/zusmani/petrolgas-prices-worldwide/data
 CC0 license - obtained with google
+
+
+https://data.transportation.gov/Aviation/Consumer-Airfare-Report-Table-1a-All-U-S-Airport-P/tfrh-tu9e/about_data
+
