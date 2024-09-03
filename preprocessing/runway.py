@@ -2,12 +2,13 @@ import pandas as pd
 from utils.dataset import Dataset
 from tqdm import tqdm
 from functools import cache
-
-runway_info = pd.read_csv("runway_data/runways.csv")
+from pathlib import Path
 
 
 @cache
 def info_for_airport(airport):
+    file = Path("additional_data") / "runway_data" / "runways.csv"
+    runway_info = pd.read_csv(file)
     df = runway_info[runway_info["airport_ident"] == airport]
     df = df[df["closed"] == False]
     relevant_cols = [
@@ -17,7 +18,7 @@ def info_for_airport(airport):
         "he_displaced_threshold_ft",
         "le_displaced_threshold_ft",
     ]
-    return df[relevant_cols].max()
+    return df[relevant_cols].max()  # we only return the max for all values
 
 
 def add_runway_data(dataset: Dataset):
