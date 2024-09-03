@@ -65,6 +65,10 @@ python run.py
 ## Dataset Overview
 TODO make a list.
 TODO: Provide download links for the preprocessed datasets, otherwise it takes a long time to preprocess the data 
+
+# Structure of the repository
+TODO make an overview of the different modules and classes.
+
 ---
 
 
