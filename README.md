@@ -48,7 +48,7 @@ Additionally, in the future, we might use T-100 forms data from the bureau of tr
 This data can be downloaded by hand, however for your conveinence we provide a scraper. To not overload the poor server we wait a long time in between requests, therefore the download process will take a long time. 
 
 ```
-python scrape_bts_t100.py
+python download_bts_t100.py.py
 ```
 The resulting data is not used right now.
 
