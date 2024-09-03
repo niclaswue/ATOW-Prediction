@@ -56,3 +56,4 @@ CC0 license - obtained with google
 
 https://data.transportation.gov/Aviation/Consumer-Airfare-Report-Table-1a-All-U-S-Airport-P/tfrh-tu9e/about_data
 
+https://destinationinsights.withgoogle.com/intl/en_ALL/
