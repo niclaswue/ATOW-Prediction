@@ -2,15 +2,14 @@ from pathlib import Path
 import pandas as pd
 import pandas as pd
 import requests
-from datetime import datetime, timedelta
+from datetime import timedelta
 import time
-import json
+from tqdm import tqdm
 import tempfile
 
 from utils.data_loader import DataLoader
 from functools import cache
 
-Path("weather_data").mkdir(exist_ok=True)
 
 loader = DataLoader(Path("data"), num_days=0, seed=1337)
 challenge, submission, final_submission, _ = loader.load()
@@ -28,7 +27,7 @@ SERVICE = "http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?"
 
 @cache
 def download_data(uri):
-    print(f"Downloading {uri} ...")
+    # print(f"Downloading {uri} ...")
     attempt = 0
     while attempt < MAX_ATTEMPTS:
         try:
@@ -44,6 +43,7 @@ def download_data(uri):
 
 
 def save_airport_weather(row, location=Path("additional_data") / "weather_data"):
+    location.mkdir(exist_ok=True)
     processed = location / "processed.txt"
 
     date = row["arrival_date"]
@@ -81,13 +81,13 @@ def save_airport_weather(row, location=Path("additional_data") / "weather_data")
         f.write(f"{url}\n")
 
 
-def combine_all_weather_data(location=Path("weather_data")):
+def combine_all_weather_data(location=Path("additional_data") / "weather_data"):
     dfs = []
     files = [fn for fn in location.rglob("*.parquet")]
     for fn in files:
         dfs.append(pd.read_parquet(fn))
     merged = pd.concat(dfs)
-    merged.to_csv(location / "all_weather.tsv", sep="\t")
+    merged.to_parquet(location / "all_weather.parquet")
 
     # remove all daily files
     for fn in files:
@@ -95,10 +95,11 @@ def combine_all_weather_data(location=Path("weather_data")):
 
 
 if __name__ == "__main__":
+    tqdm.pandas()
     df = airport_df
     df["arrival_time"] = pd.to_datetime(df["arrival_time"])
     df["arrival_date"] = pd.to_datetime(df["arrival_time"]).dt.date
     date_ades_comb = df.groupby("arrival_date")["ades"].unique().reset_index()
-    date_ades_comb.apply(save_airport_weather, axis=1)
+    date_ades_comb.progress_apply(save_airport_weather, axis=1)
 
     combine_all_weather_data()
