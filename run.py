@@ -37,7 +37,7 @@ warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 # linear regression ensembling catboost, lightgbm, autogluon, xgboost with openFE and feature importance selection
 rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
-ag = AutogluonModel(time_limit=5 * 60)
+ag = AutogluonModel(time_limit=20 * 60)
 
 ensemble = EnsembleModel([xgb, rf_model])
 

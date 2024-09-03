@@ -87,7 +87,7 @@ def combine_all_weather_data(location=Path("additional_data") / "weather_data"):
     for fn in files:
         dfs.append(pd.read_parquet(fn))
     merged = pd.concat(dfs)
-    merged.to_parquet(location / "all_weather.parquet")
+    merged.to_csv(location / "all_weather.tsv", sep="\t")
 
     # remove all daily files
     for fn in files:

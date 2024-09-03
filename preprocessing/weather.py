@@ -42,8 +42,12 @@ cols = [
 @cache
 def weather_data():
     print("Loading weather data...")
-    wdf = pd.read_parquet(
-        Path("additional_data") / "weather_data" / "all_weather.parquet"
+    wdf = pd.read_csv(
+        Path("additional_data") / "weather_data" / "all_weather.tsv",
+        sep="\t",
+        index_col=0,
+        low_memory=False,
+        dtype={col: str for col in cols if col.startswith("skyc")},
     )
     wdf["valid"] = pd.to_datetime(wdf.valid, utc=True)
 
