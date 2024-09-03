@@ -4,7 +4,7 @@ pyopensky==2.8
 colorlover==0.3.0
 openap==2.0
 
-# development
+# for development only
 # ipython==8.27.0
 # matplotlib==3.9.2
 # plotly==5.24.0

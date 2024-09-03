@@ -11,6 +11,8 @@ import xgboost
 import lightgbm as lgb
 
 from utils.data_loader import DataLoader
+
+from preprocessing.clean_dataset import clean_dataset
 from preprocessing.aircraft_performance import add_aircraft_performance_data
 from preprocessing.weather import add_weather_data
 from preprocessing.runway import add_runway_data
@@ -35,7 +37,7 @@ warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 # linear regression ensembling catboost, lightgbm, autogluon, xgboost with openFE and feature importance selection
 rf_model = ScikitLearnModel(RandomForestRegressor, {"n_estimators": 10, "verbose": 5})
 xgb = ScikitLearnModel(xgboost.XGBRegressor)
-ag = AutogluonModel(time_limit=10 * 60 * 60)
+ag = AutogluonModel(time_limit=5 * 60)
 
 ensemble = EnsembleModel([xgb, rf_model])
 
@@ -48,6 +50,7 @@ FEATURES: List[Callable] = [
     add_aircraft_performance_data,
     add_runway_data,
     add_weather_data,
+    clean_dataset,
 ]
 # add_trajectory_features
 #
@@ -57,17 +60,8 @@ def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission, trajectories = loader.load()
 
-    challenge.df = pd.read_parquet("preprocessed_latest_w_traj.parquet")
     for preprocessing_func in FEATURES:
         challenge = preprocessing_func(challenge)
-
-    challenge.df.to_parquet("preprocessed_latest.parquet")
-
-    datetime_cols = ["date", "actual_offblock_time", "arrival_time", "valid"]
-    for c in datetime_cols:
-        if c not in challenge.df.columns:
-            continue
-        challenge.df[c] = pd.to_datetime(challenge.df[c]).astype(int)
 
     train_df, val_df = challenge.split(train_percent=0.8)
     # train_df, val_df = augment_features(train_df, val_df, y="tow")
