@@ -5,9 +5,12 @@ from models.base_model import BaseModel
 
 class AutogluonModel(BaseModel):
 
-    def __init__(self, time_limit=5 * 60, name: str = "autogluon"):
+    def __init__(
+        self, time_limit=5 * 60, preset="high_quality", name: str = "autogluon"
+    ):
         super().__init__(name)
         self.time_limit = time_limit
+        self.presets = [preset]
 
     def train(self, training_df: pd.DataFrame):
         train_data = TabularDataset(training_df)
@@ -16,7 +19,7 @@ class AutogluonModel(BaseModel):
             verbosity=2,
             # log_to_file=True,
             # log_file_path="/home/niclas/ATOW-Prediction/autogluon.log",
-        ).fit(train_data, time_limit=self.time_limit, presets=["high_quality"])
+        ).fit(train_data, time_limit=self.time_limit, presets=self.presets)
         self.model = predictor
 
     def predict(self, input_df: pd.DataFrame):
@@ -25,4 +28,4 @@ class AutogluonModel(BaseModel):
         return y
 
     def info(self):
-        return {}
+        return self.model.info()
