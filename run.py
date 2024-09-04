@@ -40,7 +40,7 @@ model = AutogluonModel(time_limit=5 * 60)
 
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
-    challenge, submission, final_submission, trajectories = loader.load()
+    challenge, submission, final_submission = loader.load()
 
     for preprocessor in PREPROCESSORS:
         challenge = preprocessor.apply(challenge)
