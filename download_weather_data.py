@@ -12,7 +12,7 @@ from functools import cache
 
 
 loader = DataLoader(Path("data"), num_days=0, seed=1337)
-challenge, submission, final_submission, _ = loader.load()
+challenge, submission, final_submission = loader.load()
 
 concat_dfs = [challenge.df, submission.df]
 if final_submission:

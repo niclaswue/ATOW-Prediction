@@ -2,6 +2,13 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import r2_score
 
+try:
+    import wandb
+
+    WANDB = True
+except ImportError:
+    WANDB = False
+
 
 class MetricEvals:
 
@@ -59,7 +66,9 @@ class MetricEvals:
             "percent_near (↑)": 100 * MetricEvals.relative_error(gt, pred).mean(),
         }
 
-    def print_evaluation(self, ground_truth: pd.Series, predictions: pd.Series):
+    def log_evaluation(self, ground_truth: pd.Series, predictions: pd.Series):
         evaluation = self.evaluate(ground_truth, predictions)
         for k, v in evaluation.items():
             print(f"{k:<20}: {v:.3f}")
+        if WANDB:
+            wandb.log(evaluation)
