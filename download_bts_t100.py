@@ -120,12 +120,15 @@ def scrape_data(url, download_directory):
 
 def concat_all_csvs(dir):
     print("Concatting all tables...")
-    paths = dir.rglob("*T100_SEGMENT_ALL_CARRIER.csv")
+    paths = list(dir.rglob("*T100_SEGMENT_ALL_CARRIER.csv"))
     dfs = []
     for p in tqdm(paths):
         dfs.append(pd.read_csv(p))
     df = pd.concat(dfs)
     df.to_parquet(dir / "t100_segment_data.parquet")
+    for p in tqdm(paths):
+        p.unlink()
+        p.parent.rmdir()
 
 
 if __name__ == "__main__":
@@ -138,6 +141,6 @@ if __name__ == "__main__":
     while retries > 0 and not done:
         done = scrape_data(url, download_directory)
         retries -= 1
-        time.sleep(TIMEOUT * 10)  # we likely got detected
+        time.sleep(TIMEOUT * 10)
     concat_all_csvs(download_directory)
     print("Done downloading T100.")
