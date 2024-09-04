@@ -4,6 +4,9 @@ from tqdm import tqdm
 from functools import cache
 import numpy as np
 
+# TODO: This needs to be a Preprocessor class
+# Right now the code is way too slow... and the features dont seem to help a lot
+
 
 @cache
 def load_airports():

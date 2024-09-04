@@ -1,11 +1,11 @@
 import openap.prop
-from utils.dataset import Dataset
-import pandas as pd
 import openap
 from tqdm import tqdm
 from functools import cache
+from preprocessing.base_preprocessor import BasePreprocessor
+from utils.dataset import Dataset
 
-additional_data = {
+ADDITIONAL_DATA = {
     # https://www.airbus.com/en/who-we-are/our-history/commercial-aircraft-history/previous-generation-aircraft/a310
     "A310": {
         "mtow": 164000,
@@ -31,21 +31,22 @@ additional_data = {
 }
 
 
-@cache
-def props_for_aircraft(aircraft_type: str):
-    try:
-        return openap.prop.aircraft(aircraft_type)
-    except ValueError:
-        return additional_data[aircraft_type]
+class AircraftPerformancePreprocessor(BasePreprocessor):
 
+    @cache
+    def props_for_aircraft(self, aircraft_type: str) -> dict:
+        try:
+            return openap.prop.aircraft(aircraft_type)
+        except ValueError:
+            return ADDITIONAL_DATA[aircraft_type]
 
-def add_aircraft_performance_data(dataset: Dataset):
-    tqdm.pandas()
+    def process(self, dataset: Dataset) -> Dataset:
+        tqdm.pandas()
 
-    dataset.df["mtow"] = dataset.df["aircraft_type"].progress_apply(
-        lambda x: props_for_aircraft(x)["mtow"]
-    )
-    dataset.df["mlw"] = dataset.df["aircraft_type"].progress_apply(
-        lambda x: props_for_aircraft(x)["mlw"]
-    )
-    return dataset
+        dataset.df["mtow"] = dataset.df["aircraft_type"].progress_apply(
+            lambda x: self.props_for_aircraft(x)["mtow"]
+        )
+        dataset.df["mlw"] = dataset.df["aircraft_type"].progress_apply(
+            lambda x: self.props_for_aircraft(x)["mlw"]
+        )
+        return dataset
