@@ -58,3 +58,8 @@ class MetricEvals:
             "r_squared (↑)": MetricEvals.r_squared(gt, pred),
             "percent_near (↑)": 100 * MetricEvals.relative_error(gt, pred).mean(),
         }
+
+    def print_evaluation(self, ground_truth: pd.Series, predictions: pd.Series):
+        evaluation = self.print_evaluation(ground_truth, predictions)
+        for k, v in evaluation.items():
+            print(f"{k:<20}: {v:.3f}")
