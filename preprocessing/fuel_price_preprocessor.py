@@ -28,7 +28,7 @@ class FuelPricePreprocessor(BasePreprocessor):
         un.columns = ["_".join(col).strip() for col in un.columns.values]
         un = un.reset_index()
 
-        fuel_df = pd.merge(fuel_df, un, on="Country")
+        fuel_df = pd.merge(fuel_df, un, on="Country", how="left")
 
         fuel_df = fuel_df.rename(columns={"Country": "name"})
         country_codes = pd.read_csv(base_dir / "country_codes.csv")
@@ -41,7 +41,7 @@ class FuelPricePreprocessor(BasePreprocessor):
                 "Price Per Liter (USD)": "fuel_price_adep",
             }
         )
-        dataset.df = pd.merge(dataset.df, fuel_adep, on="country_code_adep")
+        dataset.df = pd.merge(dataset.df, fuel_adep, on="country_code_adep", how="left")
 
         fuel_ades = fuel_df.rename(
             columns={
@@ -49,7 +49,7 @@ class FuelPricePreprocessor(BasePreprocessor):
                 "Price Per Liter (USD)": "fuel_price_ades",
             }
         )
-        dataset.df = pd.merge(dataset.df, fuel_ades, on="country_code_ades")
+        dataset.df = pd.merge(dataset.df, fuel_ades, on="country_code_ades", how="left")
 
         print("Done.")
         return dataset
