@@ -35,7 +35,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
 ]
 
 evaluator = MetricEvals()
-model = AutogluonModel(time_limit=10 * 60)
+model = AutogluonModel(time_limit=5 * 60)
 
 
 def main():
