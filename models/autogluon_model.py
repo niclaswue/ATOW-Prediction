@@ -14,8 +14,8 @@ class AutogluonModel(BaseModel):
         predictor = TabularPredictor(
             label="tow",
             verbosity=2,
-            log_to_file=True,
-            log_file_path="/home/niclas/ATOW-Prediction/autogluon.log",
+            # log_to_file=True,
+            # log_file_path="/home/niclas/ATOW-Prediction/autogluon.log",
         ).fit(train_data, time_limit=self.time_limit, presets=["high_quality"])
         self.model = predictor
 
