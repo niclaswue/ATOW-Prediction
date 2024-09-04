@@ -60,6 +60,6 @@ class MetricEvals:
         }
 
     def print_evaluation(self, ground_truth: pd.Series, predictions: pd.Series):
-        evaluation = self.print_evaluation(ground_truth, predictions)
+        evaluation = self.evaluate(ground_truth, predictions)
         for k, v in evaluation.items():
             print(f"{k:<20}: {v:.3f}")
