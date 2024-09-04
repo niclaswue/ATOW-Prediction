@@ -52,11 +52,9 @@ python download_bts_t100.py.py
 ```
 The resulting data is not used right now.
 
-### Prepare the dataset
-TODO: We should maybe separate data preprocessing from the training, so that we can cache the results.
 
 ### Run the training
-To run the training, start.
+To run the training, start:
 ```
 python run.py
 ```
