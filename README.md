@@ -59,6 +59,8 @@ To run the training, start:
 python run.py
 ```
 
+### Logging with Weights & Biases
+Create a free personal account at wandb.ai, then after pip installing wandb log in using `wand login`.
 
 ## Dataset Overview
 TODO make a list.
