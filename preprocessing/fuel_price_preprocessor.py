@@ -4,7 +4,8 @@ from pathlib import Path
 
 from preprocessing.base_preprocessor import BasePreprocessor
 
-base_dir = Path("additional_data/airport_data/")
+root_dir = Path(__file__).parent.parent.absolute()
+base_dir = root_dir / "additional_data" / "airport_data"
 
 
 class FuelPricePreprocessor(BasePreprocessor):

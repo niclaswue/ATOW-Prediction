@@ -5,12 +5,14 @@ from functools import cache
 from pathlib import Path
 from preprocessing.base_preprocessor import BasePreprocessor
 
+root_dir = Path(__file__).parent.parent
+
 
 class RunwayInfoPreprocessor(BasePreprocessor):
 
     @cache
     def info_for_airport(self, airport):
-        file = Path("additional_data") / "runway_data" / "runways.csv"
+        file = root_dir / "additional_data" / "runway_data" / "runways.csv"
         runway_info = pd.read_csv(file)
         df = runway_info[runway_info["airport_ident"] == airport]
         df = df[df["closed"] == False]

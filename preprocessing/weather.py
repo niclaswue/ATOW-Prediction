@@ -5,6 +5,8 @@ from utils.dataset import Dataset
 from functools import cache
 from preprocessing.base_preprocessor import BasePreprocessor
 
+root_dir = Path(__file__).parent.parent.absolute()
+
 cols = [
     "valid",
     "tmpf",
@@ -42,7 +44,7 @@ class WeatherDataPreprocessor(BasePreprocessor):
     def weather_data(self):
         print("Loading weather data...")
         wdf = pd.read_csv(
-            Path("additional_data") / "weather_data" / "all_weather.tsv",
+            root_dir / "additional_data" / "weather_data" / "all_weather.tsv",
             sep="\t",
             index_col=0,
             low_memory=False,
