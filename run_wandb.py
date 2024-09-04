@@ -30,9 +30,11 @@ pd.set_option("future.no_silent_downcasting", True)
 warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-q", type=str, help="Quality Preset", default="high_quality")
-parser.add_argument("-t", type=int, help="Time Limit (s)", default=300)
-args = vars(parser.parse_args())
+parser.add_argument(
+    "--quality", type=str, help="Quality Preset", default="high_quality"
+)
+parser.add_argument("--time", type=int, help="Time Limit (s)", default=300)
+args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
     AircraftPerformancePreprocessor(),
@@ -45,8 +47,8 @@ PREPROCESSORS: List[BasePreprocessor] = [
 ]
 
 model_config = {
-    "time_limit": args.t,
-    "preset": args.q,
+    "time_limit": args.time,
+    "preset": args.quality,
     "verbosity": 2,
 }
 
