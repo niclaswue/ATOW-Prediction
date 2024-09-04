@@ -25,17 +25,17 @@ pd.set_option("future.no_silent_downcasting", True)
 warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 PREPROCESSORS: List[BasePreprocessor] = [
-    CleanDatasetPreprocessor(),
     AircraftPerformancePreprocessor(),
     FuelPricePreprocessor(),
     RunwayInfoPreprocessor(),
     PaxFlowPreprocessor(),
     WeatherDataPreprocessor(),
     DerivedFeaturePreprocessor(),
+    CleanDatasetPreprocessor(),
 ]
 
 evaluator = MetricEvals()
-model = AutogluonModel(time_limit=5 * 60)
+model = AutogluonModel(time_limit=10 * 60)
 
 
 def main():
