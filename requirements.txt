@@ -8,3 +8,4 @@ openap==2.0
 # ipython==8.27.0
 # matplotlib==3.9.2
 # plotly==5.24.0
+wandb==0.17.8

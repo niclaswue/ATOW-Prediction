@@ -465,3 +465,4 @@ $RECYCLE.BIN/
 *.feather
 *.csv
 AutogluonModels
+wandb/
