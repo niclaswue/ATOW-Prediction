@@ -26,12 +26,12 @@ warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 PREPROCESSORS: List[BasePreprocessor] = [
     AircraftPerformancePreprocessor(),
-    FuelPricePreprocessor(),
-    RunwayInfoPreprocessor(),
-    PaxFlowPreprocessor(),
-    WeatherDataPreprocessor(),
-    DerivedFeaturePreprocessor(),
-    CleanDatasetPreprocessor(),
+    #FuelPricePreprocessor(),
+    #RunwayInfoPreprocessor(),
+    #PaxFlowPreprocessor(),
+    #WeatherDataPreprocessor(),
+    #DerivedFeaturePreprocessor(),
+    #CleanDatasetPreprocessor(),
 ]
 
 evaluator = MetricEvals()
@@ -41,6 +41,8 @@ model = AutogluonModel(time_limit=5 * 60)
 def main():
     loader = DataLoader(Path("data"), num_days=1, seed=1337)
     challenge, submission, final_submission = loader.load()
+
+    return
 
     for preprocessor in PREPROCESSORS:
         challenge = preprocessor.apply(challenge)

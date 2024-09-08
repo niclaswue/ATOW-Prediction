@@ -2,15 +2,17 @@ import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 from functools import cache
+import pyopensky as pos
 import numpy as np
 from preprocessing.base_preprocessor import BasePreprocessor
 from utils.dataset import Dataset
 
-# TODO: This needs to be a Preprocessor class
 # Right now the code is way too slow... and the features dont seem to help a lot
+
+root_dir = Path(__file__).parent.parent.absolute()
 class TrajectoryFeaturesPreprocessor(BasePreprocessor):
     def process(self, dataset: Dataset) -> Dataset:
-        dataset.df = self.add_trajectory_features(dataset)
+        dataset.df = self._add_trajectory_features(dataset)
         return dataset
 
     @cache
@@ -19,7 +21,8 @@ class TrajectoryFeaturesPreprocessor(BasePreprocessor):
         return aps
 
 
-    def _get_near_airport_traj(self,trajectory, ap):
+    def _get_near_airport_traj(self,trajectory, ap) -> pd.DataFrame:
+
         aps = self._load_airports()
         # find near adep
         if ap not in aps.ident.unique():
@@ -133,7 +136,7 @@ class TrajectoryFeaturesPreprocessor(BasePreprocessor):
         return features
 
 
-    def _calculate_traj_features(self, trajectory, flight_info):
+    def _calculate_traj_features(self, trajectory, flight_info) -> dict:
         features = {}
         adep = flight_info["adep"]
         dep = self._get_near_airport_traj(trajectory, adep)
@@ -154,19 +157,31 @@ class TrajectoryFeaturesPreprocessor(BasePreprocessor):
         return features
 
 
-    def add_trajectory_features(self, challenge):
-        for date in tqdm(challenge.df.date.unique()):
-            if not (Path("data") / f"{date}.parquet").exists():
-                continue
-            trajs = pd.read_parquet(f"data/{date}.parquet")
-            trajs["flight_id"] = trajs["flight_id"].astype(int)
-            flight_ids = challenge.df[challenge.df.date == date].flight_id.unique()
-            for fid in tqdm(flight_ids):
-                fid_info = challenge.df[challenge.df.flight_id == fid].iloc[0].to_dict()
-                features = self._calculate_traj_features(trajs[trajs.flight_id == fid], fid_info)
-                for feat, val in features.items():
-                    challenge.df.loc[challenge.df.flight_id == fid, feat] = val
-        return challenge
+    def _add_trajectory_features(self, challenge: Dataset) -> Dataset:
+        if self._check_traj_features_cached():
+            # if the features are already calculated, load them from trajectory data
+            return self._load_traj_features(challenge)
+
+        else:
+            # if the features are not cached, calculate them first
+
+
+            # for each date, read the trajectory data from the corresponding parquet file
+            for date in tqdm(challenge.df.date.unique()):
+                if not (Path("data") / f"{date}.parquet").exists():
+                    continue
+                trajs = pd.read_parquet(f"data/{date}.parquet")
+                
+                # for each unique flight_id in the challenge data, calculate the features for the trajectory
+                trajs["flight_id"] = trajs["flight_id"].astype(int)
+                flight_ids = challenge.df[challenge.df.date == date].flight_id.unique()
+                for fid in tqdm(flight_ids):
+                    fid_info = challenge.df[challenge.df.flight_id == fid].iloc[0].to_dict()
+                    features = self._calculate_traj_features(trajs[trajs.flight_id == fid], fid_info)
+                    for feat, val in features.items():
+                        #append feature to challenge dataframe
+                        challenge.df.loc[challenge.df.flight_id == fid, feat] = val
+            return challenge
 
 
     # Idea:
