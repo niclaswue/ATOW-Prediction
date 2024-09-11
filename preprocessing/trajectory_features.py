@@ -10,6 +10,7 @@ from utils.dataset import Dataset
 # Right now the code is way too slow... and the features dont seem to help a lot
 
 root_dir = Path(__file__).parent.parent.absolute()
+
 class TrajectoryFeaturesPreprocessor(BasePreprocessor):
     def process(self, dataset: Dataset) -> Dataset:
         dataset.df = self._add_trajectory_features(dataset)
@@ -99,8 +100,8 @@ class TrajectoryFeaturesPreprocessor(BasePreprocessor):
         # m/s => kts
         headwind = 1.94384 * wind_speed * np.cos(angle_diff)
 
-        # Calculate groundspeed minus headwind
-        return df["groundspeed"] - headwind
+        # Calculate groundspeed plus headwind
+        return df["groundspeed"] + headwind
 
 
     def _calculate_climb_features(self,trajectory):
