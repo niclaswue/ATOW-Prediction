@@ -18,20 +18,14 @@ from preprocessing.derived_features import DerivedFeaturePreprocessor
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
 import argparse
-
-try:
-    import wandb
-
-    WANDB = True
-except ImportError:
-    WANDB = False
+import wandb
 
 pd.set_option("future.no_silent_downcasting", True)
 warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--quality", type=str, help="Quality Preset", default="high_quality"
+    "--quality", type=str, help="Quality Preset", default="best_quality"
 )
 parser.add_argument("--time", type=int, help="Time Limit (s)", default=300)
 args = parser.parse_args()
@@ -74,27 +68,17 @@ def train():
     return model
 
 
-def logging_wandb_init():
+if __name__ == "__main__":
     wandb.init(project="flying_penguins")
     wandb.config["model_name"] = model.name
     wandb.config["model_config"] = model_config
     wandb.config["model_info"] = model.info()
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
+    model = train()
 
-def logging_wandb_post_training(model):
     output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log({"raw_model_info": model.info()})
     wandb.log_model(output)
-
-
-if __name__ == "__main__":
-    if WANDB:
-        logging_wandb_init()
-
-    model = train()
-
-    if WANDB:
-        logging_wandb_post_training(model)
 
     print("Done with training.")
