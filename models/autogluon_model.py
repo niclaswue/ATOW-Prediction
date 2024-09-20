@@ -12,7 +12,6 @@ except ImportError:
 
 
 class AutogluonModel(BaseModel):
-
     def __init__(
         self,
         time_limit=5 * 60,
@@ -57,7 +56,7 @@ class AutogluonModel(BaseModel):
 
         if WANDB:
             input_df["prediction"] = y
-            if not "tow" in input_df.columns:
+            if "tow" not in input_df.columns:
                 input_df["tow"] = 0
             pred = input_df[["flight_id", "prediction", "tow"]]
             pred["error"] = input_df["prediction"] - input_df["tow"]
