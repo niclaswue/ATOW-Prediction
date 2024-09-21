@@ -1,14 +1,9 @@
+import os
 from autogluon.tabular import TabularDataset, TabularPredictor
 import pandas as pd
 from models.base_model import BaseModel
 from pprint import pprint
-
-try:
-    import wandb
-
-    WANDB = True
-except ImportError:
-    WANDB = False
+import wandb
 
 
 class AutogluonModel(BaseModel):
@@ -18,13 +13,16 @@ class AutogluonModel(BaseModel):
         preset="high_quality",
         verbosity: int = 2,
         name: str = "autogluon",
+        wandb: bool = True,
     ):
         super().__init__(name)
         self.time_limit = time_limit
         self.presets = [preset]
         self.verbosity = verbosity
+        self.wandb = wandb
 
     def train(self, training_df: pd.DataFrame):
+        num_cpus = min(os.cpu_count(), 64)
         train_data = TabularDataset(training_df)
         predictor = TabularPredictor(
             label="tow",
@@ -34,6 +32,7 @@ class AutogluonModel(BaseModel):
             train_data,
             time_limit=self.time_limit,
             presets=self.presets,
+            num_cpus=num_cpus,
         )
         self.model = predictor
 
@@ -41,7 +40,7 @@ class AutogluonModel(BaseModel):
         importance = self.model.feature_importance(
             train_data, time_limit=self.time_limit * 0.1
         )
-        if WANDB:
+        if self.wandb:
             importance = importance.reset_index()
             importance_table = wandb.Table(dataframe=importance)
             importance_artifact = wandb.Artifact("feature_importance", type="dataset")
@@ -54,7 +53,7 @@ class AutogluonModel(BaseModel):
         data = TabularDataset(input_df)
         y = self.model.predict(data)
 
-        if WANDB:
+        if self.wandb:
             input_df["prediction"] = y
             if "tow" not in input_df.columns:
                 input_df["tow"] = 0
