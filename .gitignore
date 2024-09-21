@@ -1,3 +1,4 @@
+artifacts/
 data/
 weather_data/
 *.parquet
