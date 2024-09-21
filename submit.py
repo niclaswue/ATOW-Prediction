@@ -8,6 +8,7 @@ import json
 
 SUBMIT_ARTIFCAT = "model:v0"
 
+wandb.init(project="flying_penguins", mode="offline")
 submission_dir = Path("submissions")
 version = len(list(submission_dir.glob("*.csv")))
 
@@ -19,14 +20,12 @@ if not Path(SECRETS_FILE).exists():
 
 access_keys = json.load(open(SECRETS_FILE, "r"))
 
-# Create a session using your credentials
+# Create a session using credentials
 session = boto3.Session(
     aws_access_key_id=access_keys.get("bucket_access_key"),
     aws_secret_access_key=access_keys.get("bucket_access_secret"),
 )
 
-
-wandb.init(project="flying_penguins")
 artifact = wandb.run.use_artifact(SUBMIT_ARTIFCAT)
 model = TabularPredictor.load(artifact.download())
 
