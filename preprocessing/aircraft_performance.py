@@ -36,6 +36,20 @@ ADDITIONAL_DATA = {
 
 def parse_specs(specs):
     result = {}
+
+    class_names = [
+        "First_Class",
+        "First_Class_Suite",
+        "Business_Class",
+        "Economy_Comfort_Class",
+        "Economy_Family_Couch",
+        "Premium_Economy_Class",
+        "Economy_Class",
+        "Total",
+    ]
+    for name in class_names:
+        result[f"Seats {name}"] = 0
+
     for key, value in specs.items():
         if key == "Cabin Configuration":
             configurations: str = specs[key]
@@ -47,16 +61,6 @@ def parse_specs(specs):
                     re.findall(r"(\w+(?:_\w+)*):(\d+)", configurations),
                 )
             )
-            class_names = [
-                "First_Class",
-                "First_Class_Suite",
-                "Business_Class",
-                "Economy_Comfort_Class",
-                "Economy_Family_Couch",
-                "Premium_Economy_Class",
-                "Economy_Class",
-                "Total",
-            ]
             for name in class_names:
                 result[f"Seats {name}"] = configurations.get(name, 0)
 
@@ -185,7 +189,6 @@ class AircraftPerformancePreprocessor(BasePreprocessor):
         #     return openap.prop.aircraft(aircraft_type)
         # except ValueError:
         #     return ADDITIONAL_DATA[aircraft_type]
-        return {"MTOW": 0}
 
     def process(self, dataset: Dataset) -> Dataset:
         tqdm.pandas()
@@ -195,10 +198,9 @@ class AircraftPerformancePreprocessor(BasePreprocessor):
             dataset.df["airline"] + "_" + dataset.df["aircraft_type"]
         )
 
-        cols = ["MTOW"]
+        cols = self.props_for_aircraft(dataset.df["airline_aircraft"].iloc[0]).keys()
         for col in cols:
             dataset.df[col] = dataset.df["airline_aircraft"].progress_apply(
                 lambda x: self.props_for_aircraft(x)[col]
             )
-
         return dataset
