@@ -23,6 +23,8 @@ class AutogluonModel(BaseModel):
 
     def train(self, training_df: pd.DataFrame):
         num_cpus = min(os.cpu_count(), 64)
+
+        training_df.drop(columns=["flight_id"], inplace=True)
         train_data = TabularDataset(training_df)
         predictor = TabularPredictor(
             label="tow",
@@ -50,6 +52,8 @@ class AutogluonModel(BaseModel):
         pprint(importance.to_dict())
 
     def predict(self, input_df: pd.DataFrame):
+        flight_ids = input_df["flight_id"]
+        input_df.drop(columns=["flight_id"], inplace=True)
         data = TabularDataset(input_df)
         y = self.model.predict(data)
 
@@ -57,7 +61,8 @@ class AutogluonModel(BaseModel):
             input_df["prediction"] = y
             if "tow" not in input_df.columns:
                 input_df["tow"] = 0
-            pred = input_df[["flight_id", "prediction", "tow"]]
+            pred = input_df[["prediction", "tow"]]
+            pred["flight_id"] = flight_ids
             pred["error"] = input_df["prediction"] - input_df["tow"]
 
             pred_table = wandb.Table(dataframe=pred)

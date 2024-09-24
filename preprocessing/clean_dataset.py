@@ -10,7 +10,7 @@ class CleanDatasetPreprocessor(BasePreprocessor):
         for c in datetime_cols:
             if c not in dataset.df.columns:
                 continue
-            dataset.df[c] = pd.to_datetime(dataset.df[c]).astype(int)
+            dataset.df[c] = pd.to_datetime(dataset.df[c])
 
         # never seen in submission, only train data
         dataset.df = dataset.df[dataset.df["aircraft_type"] != "C56X"]
