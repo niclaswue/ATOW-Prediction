@@ -14,6 +14,7 @@ from preprocessing.runway import RunwayInfoPreprocessor
 from preprocessing.pax_flow_preprocessor import PaxFlowPreprocessor
 from preprocessing.weather import WeatherDataPreprocessor
 from preprocessing.derived_features import DerivedFeaturePreprocessor
+from preprocessing.airport_preprocessor import AirportPreprocessor
 
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
@@ -31,6 +32,7 @@ parser.add_argument("--time", type=int, help="Time Limit (s)", default=300)
 args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
+    AirportPreprocessor(),
     AircraftPerformancePreprocessor(),
     FuelPricePreprocessor(),
     RunwayInfoPreprocessor(),
