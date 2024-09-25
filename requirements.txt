@@ -3,6 +3,8 @@ autogluon>=1.1.1
 pyopensky==2.8
 colorlover==0.3.0
 openap==2.0
+airportsdata==20240806
+timezonefinder==6.5.3
 
 # for development only
 ipython==8.27.0
