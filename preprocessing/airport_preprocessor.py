@@ -11,7 +11,7 @@ from functools import cache
 class AirportPreprocessor(BasePreprocessor):
     def __init__(self, no_cache=False) -> None:
         super().__init__(no_cache)
-        self.our_airports = pd.read_csv("additional_data/runway_data/airports.csv")
+        self.our_airports = pd.read_csv("additional_data/airport_data/airports.csv")
         self.ap_data = airportsdata.load()
         self.tzf = TimezoneFinder()
 
