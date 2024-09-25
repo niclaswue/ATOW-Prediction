@@ -76,8 +76,14 @@ class AirportPreprocessor(BasePreprocessor):
             )
 
         def local_time(timezone, date):
-            date = pd.to_datetime(date)
+            if pd.isna(timezone):
+                return date
             return date.tz_convert(timezone)
+
+        dataset.df["actual_offblock_time"] = pd.to_datetime(
+            dataset.df["actual_offblock_time"]
+        )
+        dataset.df["arrival_time"] = pd.to_datetime(dataset.df["arrival_time"])
 
         dataset.df["adep_local_offblock_time"] = dataset.df[
             ["adep_tz", "actual_offblock_time"]
