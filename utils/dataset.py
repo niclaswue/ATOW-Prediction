@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import KFold
 
 
 class Dataset:
@@ -27,3 +28,25 @@ class Dataset:
         test = self.df[~mask]
 
         return train, test
+
+    def k_fold_split(self, k: int = 5, seed: int = 0):
+        """
+        Perform k-fold cross-validation splitting on the dataset.
+
+        Args:
+            k (int): Number of folds. Default is 5.
+            seed (int): Random seed for reproducibility. Default is 0.
+
+        Returns:
+            list: A list of tuples, where each tuple contains (train_fold, test_fold)
+                  for each split in the k-fold cross-validation.
+        """
+        kf = KFold(n_splits=k, shuffle=True, random_state=seed)
+        splits = []
+
+        for train_index, test_index in kf.split(self.df):
+            train_fold = self.df.iloc[train_index]
+            test_fold = self.df.iloc[test_index]
+            splits.append((train_fold, test_fold))
+
+        return splits
