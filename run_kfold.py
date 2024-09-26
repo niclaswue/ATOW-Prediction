@@ -62,7 +62,7 @@ def train(dataset):
         print(f"\n\nTraining model {model.name} on split {i+1}")
         model.train(train_df)
         predictions = model.predict(val_df)
-        evaluator.log_evaluation(val_df.tow, predictions)
+        evaluator.evaluate_and_log(val_df.tow, predictions)
         model.log_feature_importance(train_df)
         models.append(models)
     return models

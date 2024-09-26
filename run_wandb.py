@@ -61,7 +61,7 @@ def train(dataset):
     print(f"\n\nTraining model {model.name}")
     model.train(train_df)
     predictions = model.predict(val_df)
-    evaluator.log_evaluation(val_df.tow, predictions)
+    evaluator.evaluate_and_log(val_df.tow, predictions)
 
     model.log_feature_importance(train_df)
     return model
