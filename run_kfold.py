@@ -57,15 +57,17 @@ def train(dataset):
         dataset = preprocessor.apply(dataset)
 
     models = []
+    evaluations = []
     for i, (train_df, val_df) in enumerate(dataset.k_fold_split()):
         model = AutogluonModel(**model_config)
         print(f"\n\nTraining model {model.name} on split {i+1}")
         model.train(train_df)
         predictions = model.predict(val_df)
-        evaluator.evaluate_and_log(val_df.tow, predictions)
+        evaluation = evaluator.evaluate(val_df.tow, predictions)
+        evaluations.append(evaluation)
         model.log_feature_importance(train_df)
         models.append(models)
-    return models
+    return models, evaluations
 
 
 if __name__ == "__main__":
@@ -76,7 +78,11 @@ if __name__ == "__main__":
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
     challenge, _, _ = loader.load()
-    models = train(challenge)
+    models, evaluations = train(challenge)
+
+    for i, metrics in enumerate(evaluations):
+        wandb.log(metrics, i)
+    wandb.log(pd.DataFrame(evaluations).add_prefix("mean_").mean().to_dict())
 
     # TODO: Ensemble the models
 
