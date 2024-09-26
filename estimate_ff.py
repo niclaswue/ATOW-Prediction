@@ -1,3 +1,4 @@
+# pip install git+https://github.com/DGAC/Acropole.git
 import pandas as pd
 from acropole import FuelEstimator
 
