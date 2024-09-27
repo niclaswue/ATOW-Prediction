@@ -58,7 +58,7 @@ def train(dataset):
 
     models = []
     evaluations = []
-    for i, (train_df, val_df) in enumerate(dataset.k_fold_split()):
+    for i, (train_df, val_df) in enumerate(dataset.k_fold_split(k=10)):
         model = AutogluonModel(**model_config)
         print(f"\n\nTraining model {model.name} on split {i+1}")
         model.train(train_df)
