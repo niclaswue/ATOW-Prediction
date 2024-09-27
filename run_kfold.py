@@ -32,14 +32,14 @@ parser.add_argument("--time", type=int, help="Time Limit (s)", default=30)
 args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
-    # AirportPreprocessor(),
-    # AircraftPerformancePreprocessor(),
-    # FuelPricePreprocessor(),
-    # RunwayInfoPreprocessor(),
-    # PaxFlowPreprocessor(),
-    # WeatherDataPreprocessor(),
-    # DerivedFeaturePreprocessor(),
-    # CleanDatasetPreprocessor(),
+    AirportPreprocessor(),
+    AircraftPerformancePreprocessor(),
+    FuelPricePreprocessor(),
+    RunwayInfoPreprocessor(),
+    PaxFlowPreprocessor(),
+    WeatherDataPreprocessor(),
+    DerivedFeaturePreprocessor(),
+    CleanDatasetPreprocessor(),
 ]
 
 model_config = {
