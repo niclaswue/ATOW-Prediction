@@ -9,13 +9,12 @@ root_dir = Path(__file__).parent.parent
 
 
 class RunwayInfoPreprocessor(BasePreprocessor):
-
     @cache
     def info_for_airport(self, airport):
         file = root_dir / "additional_data" / "runway_data" / "runways.csv"
         runway_info = pd.read_csv(file)
         df = runway_info[runway_info["airport_ident"] == airport]
-        df = df[df["closed"] == False]
+        df = df[df["closed"] is False]
         relevant_cols = [
             "length_ft",
             "he_elevation_ft",

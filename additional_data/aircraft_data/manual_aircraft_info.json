@@ -1,0 +1,95 @@
+[
+    {
+        "name": "TUIfly Boeing 737-800",
+        "type": "Boeing 737-800",
+        "specifications": {
+            "ICAO code": "B738",
+            "Airline": "TUIfly",
+            "Cabin Configuration": "Economy Class: 189Total: 189",
+            "Cargo Capacity": "3,000 kg (6,614 lbs)",
+            "Range": "2926 nm",
+            "MLW": "66,361 kg (146,301 lbs)",
+            "MTOW": "79,000 kg",
+            "ZFW": "61,688 kg (135,999 lbs)",
+            "Fuel Capacity": "20,922 kg (46,125 lbs)",
+            "Fuel Flow": "2,530 kg/hour (5,578 lbs/hour)",
+            "Service Ceiling": "41,000 ft",
+            "Cruising Speed": "mach 0.785",
+            "Cost Index": "30"
+        },
+        "source": [
+            "https://staralliancevirtual.org/fleet/models/turkish-airlines-boeing-737-8f2-wl",
+            "https://www.seatguru.com/airlines/TUIfly/TUIfly_Boeing_737-800.php#seatMapKeyLegend",
+            "https://www.tui.com/service-kontakt/flug/50-jahre-tui-fly-jubilaeum/die-flotte"
+        ]
+    },
+    {
+        "name": "Jet2 Boeing 737-800",
+        "type": "Boeing 737-800",
+        "specifications": {
+            "ICAO code": "B738",
+            "Airline": "Jet2",
+            "Cabin Configuration": "Economy Class: 189Total: 189",
+            "Cargo Capacity": "3,000 kg (6,614 lbs)",
+            "Range": "2,935 nm (5,436 km)",
+            "MLW": "66,361 kg (146,301 lbs)",
+            "MTOW": "79,016 kg (174,200 lbs)",
+            "ZFW": "61,688 kg (135,999 lbs)",
+            "Fuel Capacity": "20,922 kg (46,125 lbs)",
+            "Fuel Flow": "2,530 kg/hour (5,578 lbs/hour)",
+            "Service Ceiling": "41,000 ft",
+            "Cruising Speed": "mach 0.785",
+            "Cost Index": "30"
+        },
+        "source": [
+            "https://staralliancevirtual.org/fleet/models/turkish-airlines-boeing-737-8f2-wl",
+            "https://www.seatguru.com/airlines/Jet2com/Jet2_Boeing_737-800.php"
+        ]
+    },
+    {
+        "name": "TuiFly Boeing 787-8 Dreamliner",
+        "type": "Boeing 787-8 Dreamliner",
+        "specifications": {
+            "ICAO code": "B788",
+            "Airline": "TuiFly",
+            "Cabin Configuration": "Premium Economy Class: 47Economy Class: 241Total: 288",
+            "Cargo Capacity": "16,000 kg (35,274 lbs)",
+            "Range": "7,355 nm (13,621 km)",
+            "MLW": "172,365 kg (380,000 lbs)",
+            "MTOW": "227,930 kg (502,500 lbs)",
+            "ZFW": "161,025 kg (354,999 lbs)",
+            "Fuel Capacity": "100,965 kg (222,590 lbs)",
+            "Fuel Flow": "4,900 kg/hour (10,803 lbs/hour)",
+            "Service Ceiling": "43,100 ft",
+            "Cruising Speed": "mach 0.86",
+            "Cost Index": "100"
+        },
+        "source": [
+            "https://oneworldvirtual.org/fleet/models/japan-airlines-boeing-787-8-dreamliner",
+            "https://www.seatguru.com/airlines/Thomson_Airways/Thomson_Airways_Boeing_787-8.php"
+        ]
+    },
+    {
+        "name": "SAS Airbus A220-300",
+        "type": "Airbus A220-300",
+        "specifications": {
+            "ICAO code": "BCS3",
+            "Airline": "Scandinavian Airlines (SAS/SK)",
+            "Cabin Configuration": "Economy Class: 145Total: 145",
+            "Cargo Capacity": "1,800 kg (3,968 lbs)",
+            "Range": "3,300 nm (6,112 km)",
+            "MLW": "58,740 kg (129,500 lbs)",
+            "MTOW": "67,585 kg (148,999 lbs)",
+            "ZFW": "55,792 kg (123,000 lbs)",
+            "Fuel Capacity": "17,213 kg (37,948 lbs)",
+            "Fuel Flow": "1,950 kg/hour (4,299 lbs/hour)",
+            "Service Ceiling": "41,000 ft",
+            "Cruising Speed": "mach 0.8",
+            "Cost Index": "15"
+        },
+        "source": [
+            "https://staralliancevirtual.org/fleet/models/egyptair-airbus-a220-300",
+            "https://www.seatguru.com/airlines/Air_Baltic/AirBaltic_Airbus_A220-300.php"
+        ]
+    }
+]

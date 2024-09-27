@@ -57,7 +57,7 @@ out_path = additional_data_dir / "airport_data" / "fuel_prices_20_06_2022.csv"
 download(URL, out_path, size)
 
 URL = "https://davidmegginson.github.io/ourairports-data/airports.csv"
-out_path = additional_data_dir / "runway_data" / "airports.csv"
+out_path = additional_data_dir / "airport_data" / "airports.csv"
 size = 1442
 download(URL, out_path, size)
 

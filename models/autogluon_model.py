@@ -1,31 +1,30 @@
+import os
 from autogluon.tabular import TabularDataset, TabularPredictor
 import pandas as pd
 from models.base_model import BaseModel
 from pprint import pprint
-
-try:
-    import wandb
-
-    WANDB = True
-except ImportError:
-    WANDB = False
+import wandb
 
 
 class AutogluonModel(BaseModel):
-
     def __init__(
         self,
         time_limit=5 * 60,
         preset="high_quality",
         verbosity: int = 2,
         name: str = "autogluon",
+        wandb: bool = True,
     ):
         super().__init__(name)
         self.time_limit = time_limit
         self.presets = [preset]
         self.verbosity = verbosity
+        self.wandb = wandb
 
     def train(self, training_df: pd.DataFrame):
+        num_cpus = min(os.cpu_count(), 64)
+
+        training_df.drop(columns=["flight_id"], inplace=True)
         train_data = TabularDataset(training_df)
         predictor = TabularPredictor(
             label="tow",
@@ -35,6 +34,7 @@ class AutogluonModel(BaseModel):
             train_data,
             time_limit=self.time_limit,
             presets=self.presets,
+            num_cpus=num_cpus,
         )
         self.model = predictor
 
@@ -42,7 +42,7 @@ class AutogluonModel(BaseModel):
         importance = self.model.feature_importance(
             train_data, time_limit=self.time_limit * 0.1
         )
-        if WANDB:
+        if self.wandb:
             importance = importance.reset_index()
             importance_table = wandb.Table(dataframe=importance)
             importance_artifact = wandb.Artifact("feature_importance", type="dataset")
@@ -52,14 +52,17 @@ class AutogluonModel(BaseModel):
         pprint(importance.to_dict())
 
     def predict(self, input_df: pd.DataFrame):
+        flight_ids = input_df["flight_id"]
+        input_df.drop(columns=["flight_id"], inplace=True)
         data = TabularDataset(input_df)
         y = self.model.predict(data)
 
-        if WANDB:
+        if self.wandb:
             input_df["prediction"] = y
-            if not "tow" in input_df.columns:
+            if "tow" not in input_df.columns:
                 input_df["tow"] = 0
-            pred = input_df[["flight_id", "prediction", "tow"]]
+            pred = input_df[["prediction", "tow"]]
+            pred["flight_id"] = flight_ids
             pred["error"] = input_df["prediction"] - input_df["tow"]
 
             pred_table = wandb.Table(dataframe=pred)

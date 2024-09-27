@@ -5,6 +5,8 @@ import warnings
 
 import pandas as pd
 from utils.data_loader import DataLoader
+from utils.dataset import Dataset
+import numpy as np
 
 from preprocessing.base_preprocessor import BasePreprocessor
 from preprocessing.clean_dataset import CleanDatasetPreprocessor
@@ -31,16 +33,7 @@ parser.add_argument(
 parser.add_argument("--time", type=int, help="Time Limit (s)", default=300)
 args = parser.parse_args()
 
-PREPROCESSORS: List[BasePreprocessor] = [
-    AirportPreprocessor(),
-    AircraftPerformancePreprocessor(),
-    FuelPricePreprocessor(),
-    RunwayInfoPreprocessor(),
-    PaxFlowPreprocessor(),
-    WeatherDataPreprocessor(),
-    DerivedFeaturePreprocessor(),
-    CleanDatasetPreprocessor(),
-]
+PREPROCESSORS: List[BasePreprocessor] = []
 
 model_config = {
     "time_limit": args.time,
@@ -50,7 +43,6 @@ model_config = {
 
 evaluator = MetricEvals()
 model = AutogluonModel(**model_config)
-loader = DataLoader(Path("data"), num_days=0)
 
 
 def train(dataset):
@@ -74,8 +66,12 @@ if __name__ == "__main__":
     wandb.config["model_info"] = model.info()
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
-    challenge, _, _ = loader.load()
-    model = train(challenge)
+    df = pd.read_csv("/home/wues_ni/Projects/ATOW-Prediction/notebooks/A320_T100.csv")
+    df["aircraft_type"] = "A320"
+    df["flight_id"] = np.arange(len(df))
+    df.rename(columns={"PAYLOAD_PER_DEPARTURE": "tow"}, inplace=True)
+    dataset = Dataset(df.reset_index(drop=True), name="T100")
+    model = train(dataset)
 
     output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log({"raw_model_info": model.info()})

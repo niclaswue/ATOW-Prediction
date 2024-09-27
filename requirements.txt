@@ -1,11 +1,17 @@
 # inference
-autogluon==1.1.1
+autogluon>=1.1.1
 pyopensky==2.8
 colorlover==0.3.0
 openap==2.0
+airportsdata==20240806
+timezonefinder==6.5.3
 
 # for development only
-# ipython==8.27.0
-# matplotlib==3.9.2
-# plotly==5.24.0
+ipython==8.27.0
+matplotlib==3.9.2
+plotly==5.24.0
 wandb==0.17.8
+
+# scraping
+selenium==4.25.0
+webdriver_manager==4.0.2
