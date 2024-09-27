@@ -26,7 +26,7 @@ warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--quality", type=str, help="Quality Preset", default="medium_quality"
+    "--quality", type=str, help="Quality Preset", default="best_quality"
 )
 parser.add_argument("--time", type=int, help="Time Limit (s)", default=30)
 args = parser.parse_args()
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     models, evaluations = train(challenge)
 
     for i, metrics in enumerate(evaluations):
-        wandb.log(metrics, i)
+        wandb.log(metrics)
     wandb.log(pd.DataFrame(evaluations).add_prefix("mean_").mean().to_dict())
 
     # TODO: Ensemble the models
