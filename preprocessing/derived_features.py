@@ -13,6 +13,14 @@ class DerivedFeaturePreprocessor(BasePreprocessor):
         )
         dataset.df["arrival_time"] = pd.to_datetime(dataset.df["arrival_time"])
 
+        # 6min average taxi in time all airports 2022 (https://ansperformance.eu/economics/cba/standard-inputs/chapters/taxiing_times.html#:~:text=The%20taxi%2Dout%20time%20is,%2Dblock%20time%20(AIBT).)
+        dataset.df["onblock_time"] = dataset.df["arrival_time"] + pd.Timedelta(
+            6, unit="m"
+        )
+        dataset.df["ramp_to_ramp_time"] = (
+            dataset.df["onblock_time"] - dataset.df["actual_offblock_time"]
+        )
+
         dataset.df["day"] = dataset.df["date"].dt.day
         dataset.df["month"] = dataset.df["date"].dt.month
         dataset.df["year"] = dataset.df["date"].dt.year
