@@ -6,6 +6,7 @@ import airportsdata
 from timezonefinder import TimezoneFinder
 from tqdm import tqdm
 from functools import cache
+import geopy.distance
 
 
 class AirportPreprocessor(BasePreprocessor):
@@ -96,5 +97,22 @@ class AirportPreprocessor(BasePreprocessor):
         ].progress_apply(
             lambda row: local_time(row["ades_tz"], row["arrival_time"]), axis=1
         )
+
+        @cache
+        def distance_km(ap1, ap2):
+            if pd.isna(list(ap1)).any() or pd.isna(list(ap2)).any():
+                return pd.NA
+            return geopy.distance.geodesic(ap1, ap2).km
+
+        dataset.df["route_distance_km"] = dataset.df[
+            ["adep_lat", "adep_lon", "ades_lat", "ades_lon"]
+        ].progress_apply(
+            lambda x: distance_km(
+                (x["adep_lat"], x["adep_lon"]), (x["ades_lat"], x["ades_lon"])
+            ),
+            axis=1,
+        )
+        dataset.df["route_distance_mi"] = dataset.df["route_distance_km"] / 1.60934
+
         print("Done.")
         return dataset
