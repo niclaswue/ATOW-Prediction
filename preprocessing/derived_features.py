@@ -17,9 +17,9 @@ class DerivedFeaturePreprocessor(BasePreprocessor):
         dataset.df["onblock_time"] = dataset.df["arrival_time"] + pd.Timedelta(
             6, unit="m"
         )
-        dataset.df["ramp_to_ramp_time"] = (
+        dataset.df["ramp_to_ramp_hours"] = (
             dataset.df["onblock_time"] - dataset.df["actual_offblock_time"]
-        )
+        ).dt.total_seconds() / 3600
 
         taxiout_deltas = pd.to_timedelta(dataset.df["taxiout_time"], unit="m")
         dataset.df["takeoff_time"] = dataset.df["actual_offblock_time"] + taxiout_deltas
@@ -32,7 +32,7 @@ class DerivedFeaturePreprocessor(BasePreprocessor):
         dataset.df["month"] = dataset.df["date"].dt.month
         dataset.df["year"] = dataset.df["date"].dt.year
         dataset.df["day_of_week"] = dataset.df["date"].dt.day_of_week
-        dataset.df["week"] = dataset.df["date"].dt.isocalendar().week
+        dataset.df["week"] = pd.to_numeric(dataset.df["date"].dt.isocalendar().week)
         dataset.df["quarter"] = dataset.df["date"].dt.quarter
         dataset.df["is_week_day"] = dataset.df["day_of_week"] < 5
 
