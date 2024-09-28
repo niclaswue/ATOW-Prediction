@@ -32,7 +32,7 @@ class DerivedFeaturePreprocessor(BasePreprocessor):
         dataset.df["month"] = dataset.df["date"].dt.month
         dataset.df["year"] = dataset.df["date"].dt.year
         dataset.df["day_of_week"] = dataset.df["date"].dt.day_of_week
-        dataset.df["week"] = pd.to_numeric(dataset.df["date"].dt.isocalendar().week)
+        dataset.df["week"] = dataset.df["date"].dt.isocalendar().week.astype(int)
         dataset.df["quarter"] = dataset.df["date"].dt.quarter
         dataset.df["is_week_day"] = dataset.df["day_of_week"] < 5
 
