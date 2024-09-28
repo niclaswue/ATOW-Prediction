@@ -21,10 +21,12 @@ class DerivedFeaturePreprocessor(BasePreprocessor):
             dataset.df["onblock_time"] - dataset.df["actual_offblock_time"]
         )
 
-        dataset.df["takeoff_time"] = dataset.df["actual_offblock_time"] + pd.Timedelta(
-            dataset.df["taxiout_time"], unit="m"
-        )
-        dataset.df["air_time"] = dataset.df["arrival_time"] - dataset.df["takeoff_time"]
+        taxiout_deltas = pd.to_timedelta(dataset.df["taxiout_time"], unit="m")
+        dataset.df["takeoff_time"] = dataset.df["actual_offblock_time"] + taxiout_deltas
+
+        dataset.df["air_time_hours"] = (
+            dataset.df["arrival_time"] - dataset.df["takeoff_time"]
+        ).dt.total_seconds() / 3600
 
         dataset.df["day"] = dataset.df["date"].dt.day
         dataset.df["month"] = dataset.df["date"].dt.month
