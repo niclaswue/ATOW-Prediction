@@ -8,12 +8,36 @@ from tqdm import tqdm
 from functools import cache
 import geopy.distance
 
+CUSTOM_AIRPORTS = {
+    "UTFF": {
+        "city": "Fergana",
+        "region": "UZ-FA",
+        "continent": "AS",
+        "type": "small_airport",
+        "elevation": 2051,
+        "lat": 40.358889,
+        "lon": 71.745,
+        "tz": "Asia/Tashkent",
+    },
+    "LTCU": {
+        "city": "Bingöl",
+        "region": "TR-12",
+        "continent": "AS",
+        "type": "small_airport",
+        "elevation": 3490,
+        "lat": 38.861111,
+        "lon": 40.5925,
+        "tz": "Europe/Istanbul",
+    },
+}
+
 
 class AirportPreprocessor(BasePreprocessor):
     def __init__(self, no_cache=False) -> None:
         super().__init__(no_cache)
         self.our_airports = pd.read_csv("additional_data/airport_data/airports.csv")
         self.ap_data = airportsdata.load()
+        self.custom_data = CUSTOM_AIRPORTS
         self.tzf = TimezoneFinder()
 
     @cache
@@ -49,8 +73,10 @@ class AirportPreprocessor(BasePreprocessor):
                 "lon": data["lon"],
                 "tz": data["tz"],
             }
+        elif code in self.custom_data:
+            return self.custom_data[code]
         else:
-            print(code)
+            print(f"WARNING: No airport data for {code}")
             return {
                 "city": pd.NA,
                 "region": pd.NA,
