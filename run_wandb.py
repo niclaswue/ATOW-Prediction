@@ -15,6 +15,7 @@ from preprocessing.pax_flow_preprocessor import PaxFlowPreprocessor
 from preprocessing.weather import WeatherDataPreprocessor
 from preprocessing.derived_features import DerivedFeaturePreprocessor
 from preprocessing.airport_preprocessor import AirportPreprocessor
+from preprocessing.payload_prediction_preprocessor import PayloadPredictionPreprocessor
 
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
@@ -39,6 +40,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
     PaxFlowPreprocessor(),
     WeatherDataPreprocessor(),
     DerivedFeaturePreprocessor(),
+    PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
     CleanDatasetPreprocessor(),
 ]
 
