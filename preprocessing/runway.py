@@ -14,7 +14,7 @@ class RunwayInfoPreprocessor(BasePreprocessor):
         file = root_dir / "additional_data" / "runway_data" / "runways.csv"
         runway_info = pd.read_csv(file)
         df = runway_info[runway_info["airport_ident"] == airport]
-        df = df[df["closed"] is False]
+        df = df[df["closed"] == False]
         relevant_cols = [
             "length_ft",
             "he_elevation_ft",

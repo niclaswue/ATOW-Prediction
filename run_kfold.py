@@ -26,20 +26,20 @@ warnings.filterwarnings(action="ignore", message="Mean of empty slice")
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--quality", type=str, help="Quality Preset", default="medium_quality"
+    "--quality", type=str, help="Quality Preset", default="best_quality"
 )
 parser.add_argument("--time", type=int, help="Time Limit (s)", default=30)
 args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
-    # AirportPreprocessor(),
-    # AircraftPerformancePreprocessor(),
-    # FuelPricePreprocessor(),
-    # RunwayInfoPreprocessor(),
-    # PaxFlowPreprocessor(),
-    # WeatherDataPreprocessor(),
-    # DerivedFeaturePreprocessor(),
-    # CleanDatasetPreprocessor(),
+    AirportPreprocessor(),
+    AircraftPerformancePreprocessor(),
+    FuelPricePreprocessor(),
+    RunwayInfoPreprocessor(),
+    PaxFlowPreprocessor(),
+    WeatherDataPreprocessor(),
+    DerivedFeaturePreprocessor(),
+    CleanDatasetPreprocessor(),
 ]
 
 model_config = {
@@ -57,15 +57,17 @@ def train(dataset):
         dataset = preprocessor.apply(dataset)
 
     models = []
-    for i, (train_df, val_df) in enumerate(dataset.k_fold_split()):
+    evaluations = []
+    for i, (train_df, val_df) in enumerate(dataset.k_fold_split(k=10)):
         model = AutogluonModel(**model_config)
         print(f"\n\nTraining model {model.name} on split {i+1}")
         model.train(train_df)
         predictions = model.predict(val_df)
-        evaluator.log_evaluation(val_df.tow, predictions)
+        evaluation = evaluator.evaluate(val_df.tow, predictions)
+        evaluations.append(evaluation)
         model.log_feature_importance(train_df)
         models.append(models)
-    return models
+    return models, evaluations
 
 
 if __name__ == "__main__":
@@ -76,7 +78,11 @@ if __name__ == "__main__":
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
     challenge, _, _ = loader.load()
-    models = train(challenge)
+    models, evaluations = train(challenge)
+
+    for i, metrics in enumerate(evaluations):
+        wandb.log(metrics)
+    wandb.log(pd.DataFrame(evaluations).add_prefix("mean_").mean().to_dict())
 
     # TODO: Ensemble the models
 

@@ -15,6 +15,7 @@ from preprocessing.pax_flow_preprocessor import PaxFlowPreprocessor
 from preprocessing.weather import WeatherDataPreprocessor
 from preprocessing.derived_features import DerivedFeaturePreprocessor
 from preprocessing.airport_preprocessor import AirportPreprocessor
+from preprocessing.payload_prediction_preprocessor import PayloadPredictionPreprocessor
 
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
@@ -39,6 +40,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
     PaxFlowPreprocessor(),
     WeatherDataPreprocessor(),
     DerivedFeaturePreprocessor(),
+    PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
     CleanDatasetPreprocessor(),
 ]
 
@@ -61,7 +63,7 @@ def train(dataset):
     print(f"\n\nTraining model {model.name}")
     model.train(train_df)
     predictions = model.predict(val_df)
-    evaluator.log_evaluation(val_df.tow, predictions)
+    evaluator.evaluate_and_log(val_df.tow, predictions)
 
     model.log_feature_importance(train_df)
     return model

@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from joblib import Memory
 from utils.dataset import Dataset
 
-
-memory = Memory(".cache", bytes_limit="5G", verbose=1)
+# max 2GB cache per Preprocessor
+memory = Memory(".cache", bytes_limit="2G", verbose=1)
 
 
 class BasePreprocessor(ABC):

@@ -49,27 +49,30 @@ def train(dataset):
     for preprocessor in PREPROCESSORS:
         dataset = preprocessor.apply(dataset)
 
-    train_df, val_df = dataset.split(train_percent=0.8, seed=0)
+    train_df, val_df = dataset.split(train_percent=0.95, seed=0)
     print(f"\n\nTraining model {model.name}")
     model.train(train_df)
     predictions = model.predict(val_df)
-    evaluator.log_evaluation(val_df.tow, predictions)
+    evaluator.evaluate_and_log(val_df.tow, predictions)
 
     model.log_feature_importance(train_df)
     return model
 
 
 if __name__ == "__main__":
-    wandb.init(project="flying_penguins")
+    wandb.init(project="flying_penguins_t100")
     wandb.config["model_name"] = model.name
     wandb.config["model_config"] = model_config
     wandb.config["model_info"] = model.info()
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
-    df = pd.read_csv("/home/wues_ni/Projects/ATOW-Prediction/notebooks/A320_T100.csv")
-    df["aircraft_type"] = "A320"
-    df["flight_id"] = np.arange(len(df))
-    df.rename(columns={"PAYLOAD_PER_DEPARTURE": "tow"}, inplace=True)
+    df = pd.read_parquet("additional_data/T100_data/dataset.parquet")
+
+    random_ids = np.arange(len(df))
+    np.random.shuffle(random_ids)
+    df["flight_id"] = random_ids
+
+    df.rename(columns={"PAYLOAD": "tow"}, inplace=True)
     dataset = Dataset(df.reset_index(drop=True), name="T100")
     model = train(dataset)
 
