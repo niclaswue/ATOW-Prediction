@@ -9,7 +9,6 @@ root_dir = Path(__file__).parent.parent
 
 
 class RunwayInfoPreprocessor(BasePreprocessor):
-
     @cache
     def info_for_airport(self, airport):
         file = root_dir / "additional_data" / "runway_data" / "runways.csv"

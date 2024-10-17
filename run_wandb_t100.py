@@ -5,6 +5,8 @@ import warnings
 
 import pandas as pd
 from utils.data_loader import DataLoader
+from utils.dataset import Dataset
+import numpy as np
 
 from preprocessing.base_preprocessor import BasePreprocessor
 from preprocessing.clean_dataset import CleanDatasetPreprocessor
@@ -15,7 +17,6 @@ from preprocessing.pax_flow_preprocessor import PaxFlowPreprocessor
 from preprocessing.weather import WeatherDataPreprocessor
 from preprocessing.derived_features import DerivedFeaturePreprocessor
 from preprocessing.airport_preprocessor import AirportPreprocessor
-from preprocessing.payload_prediction_preprocessor import PayloadPredictionPreprocessor
 
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
@@ -32,17 +33,7 @@ parser.add_argument(
 parser.add_argument("--time", type=int, help="Time Limit (s)", default=300)
 args = parser.parse_args()
 
-PREPROCESSORS: List[BasePreprocessor] = [
-    AirportPreprocessor(),
-    AircraftPerformancePreprocessor(),
-    FuelPricePreprocessor(),
-    RunwayInfoPreprocessor(),
-    PaxFlowPreprocessor(),
-    WeatherDataPreprocessor(),
-    DerivedFeaturePreprocessor(),
-    PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
-    CleanDatasetPreprocessor(),
-]
+PREPROCESSORS: List[BasePreprocessor] = []
 
 model_config = {
     "time_limit": args.time,
@@ -52,14 +43,13 @@ model_config = {
 
 evaluator = MetricEvals()
 model = AutogluonModel(**model_config)
-loader = DataLoader(Path("data"), num_days=0)
 
 
 def train(dataset):
     for preprocessor in PREPROCESSORS:
         dataset = preprocessor.apply(dataset)
 
-    train_df, val_df = dataset.split(train_percent=0.8, seed=0)
+    train_df, val_df = dataset.split(train_percent=0.95, seed=0)
     print(f"\n\nTraining model {model.name}")
     model.train(train_df)
     predictions = model.predict(val_df)
@@ -70,14 +60,21 @@ def train(dataset):
 
 
 if __name__ == "__main__":
-    wandb.init(project="flying_penguins")
+    wandb.init(project="flying_penguins_t100")
     wandb.config["model_name"] = model.name
     wandb.config["model_config"] = model_config
     wandb.config["model_info"] = model.info()
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
-    challenge, _, _ = loader.load()
-    model = train(challenge)
+    df = pd.read_parquet("additional_data/T100_data/dataset.parquet")
+
+    random_ids = np.arange(len(df))
+    np.random.shuffle(random_ids)
+    df["flight_id"] = random_ids
+
+    df.rename(columns={"PAYLOAD": "tow"}, inplace=True)
+    dataset = Dataset(df.reset_index(drop=True), name="T100")
+    model = train(dataset)
 
     output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log({"raw_model_info": model.info()})

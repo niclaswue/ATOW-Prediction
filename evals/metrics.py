@@ -66,9 +66,10 @@ class MetricEvals:
             "percent_near (↑)": 100 * MetricEvals.relative_error(gt, pred).mean(),
         }
 
-    def log_evaluation(self, ground_truth: pd.Series, predictions: pd.Series):
+    def evaluate_and_log(self, ground_truth: pd.Series, predictions: pd.Series):
         evaluation = self.evaluate(ground_truth, predictions)
         for k, v in evaluation.items():
             print(f"{k:<20}: {v:.3f}")
         if WANDB:
             wandb.log(evaluation)
+        return evaluation

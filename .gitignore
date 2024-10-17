@@ -1,3 +1,4 @@
+artifacts/
 data/
 weather_data/
 *.parquet
@@ -466,3 +467,6 @@ $RECYCLE.BIN/
 *.csv
 AutogluonModels
 wandb/
+
+!submissions/*.csv
+additional_models/
