@@ -2,7 +2,7 @@ import wandb
 from pathlib import Path
 from autogluon.tabular import TabularDataset, TabularPredictor
 from utils.data_loader import DataLoader
-from run import PREPROCESSORS
+from run_wandb import PREPROCESSORS
 import boto3
 import json
 
