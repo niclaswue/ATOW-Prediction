@@ -1,12 +1,15 @@
 from preprocessing.base_preprocessor import BasePreprocessor
 import pandas as pd
 from utils.dataset import Dataset
-import pytz
 import airportsdata
 from timezonefinder import TimezoneFinder
 from tqdm import tqdm
 from functools import cache
+from pathlib import Path
 import geopy.distance
+
+base_path = Path(__file__).parent.parent.absolute()
+
 
 CUSTOM_AIRPORTS = {
     "UTFF": {
@@ -35,7 +38,9 @@ CUSTOM_AIRPORTS = {
 class AirportPreprocessor(BasePreprocessor):
     def __init__(self, no_cache=False) -> None:
         super().__init__(no_cache)
-        self.our_airports = pd.read_csv("additional_data/airport_data/airports.csv")
+        self.our_airports = pd.read_csv(
+            base_path / "additional_data/airport_data/airports.csv"
+        )
         self.ap_data = airportsdata.load()
         self.custom_data = CUSTOM_AIRPORTS
         self.tzf = TimezoneFinder()

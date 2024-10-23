@@ -40,7 +40,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
     PaxFlowPreprocessor(),
     WeatherDataPreprocessor(),
     DerivedFeaturePreprocessor(),
-    PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
+    # PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
     CleanDatasetPreprocessor(),
 ]
 
@@ -59,7 +59,7 @@ def train(dataset):
     for preprocessor in PREPROCESSORS:
         dataset = preprocessor.apply(dataset)
 
-    train_df, val_df = dataset.split(train_percent=0.8, seed=0)
+    train_df, val_df = dataset.split(train_percent=0.99, seed=0)
     print(f"\n\nTraining model {model.name}")
     model.train(train_df)
     predictions = model.predict(val_df)
