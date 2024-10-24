@@ -2,13 +2,13 @@ import wandb
 from pathlib import Path
 from autogluon.tabular import TabularDataset, TabularPredictor
 from utils.data_loader import DataLoader
-from run import PREPROCESSORS
+from run_wandb import PREPROCESSORS
 import boto3
 import json
 
-SUBMIT_ARTIFCAT = "model:v0"
+SUBMIT_ARTIFACT = "model:v11"
 
-wandb.init(project="flying_penguins", mode="offline")
+wandb.init(project="flying_penguins", name=f"submission_{SUBMIT_ARTIFACT}")
 submission_dir = Path("submissions")
 version = len(list(submission_dir.glob("*.csv")))
 
@@ -26,11 +26,11 @@ session = boto3.Session(
     aws_secret_access_key=access_keys.get("bucket_access_secret"),
 )
 
-artifact = wandb.run.use_artifact(SUBMIT_ARTIFCAT)
+artifact = wandb.run.use_artifact(SUBMIT_ARTIFACT)
 model = TabularPredictor.load(artifact.download())
 
 loader = DataLoader(Path("data"), num_days=0)
-_, dataset, _ = loader.load()
+_, _, dataset = loader.load()
 
 
 for preprocessor in PREPROCESSORS:

@@ -18,7 +18,7 @@ class PayloadPredictionPreprocessor(BasePreprocessor):
 
         # TODO: Use IATA PLF data
         # https://www.iata.org/en/iata-repository/publications/economic-reports/air-passenger-market-analysis---december-2022/
-        assumed_plf = 0.812
+        average_plf = 0.812
 
         seat_plf = {  # just some guesses
             "Seats First_Class": 0.50,
@@ -56,12 +56,13 @@ class PayloadPredictionPreprocessor(BasePreprocessor):
 
         load_factors = {
             "seat_weighted_plf": seat_weighted_load_factor,
-            "fixed_plf_75": 0.75,
-            "fixed_plf_80": 0.8,
-            "fixed_plf_85": 0.85,
-            "fixed_plf_90": 0.9,
-            "fixed_plf_95": 0.95,
-            "fixed_plf_100": 1.0,
+            # "fixed_plf_75": 0.75,
+            # "fixed_plf_80": 0.8,
+            # "fixed_plf_85": 0.85,
+            # "fixed_plf_90": 0.9,
+            # "fixed_plf_95": 0.95,
+            # "fixed_plf_100": 1.0,
+            "iata_plf_81": average_plf,
         }
 
         print("Predicting Payloads based on T100 filings...")
@@ -71,6 +72,9 @@ class PayloadPredictionPreprocessor(BasePreprocessor):
             predictions = self.model.predict(ag_dataset)
             predictions_kg = predictions * 0.453592  # libs to kg
             dataset.df[f"predicted_kg_payload_{plf_name}"] = predictions_kg
+            dataset.df[f"predicted_tow_t100_{plf_name}"] = (
+                dataset.df["ZFW"] + predictions_kg
+            )
         print("Done")
 
         return dataset

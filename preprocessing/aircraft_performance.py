@@ -133,6 +133,7 @@ class AircraftPerformancePreprocessor(BasePreprocessor):
         self.info += manual_info
         self.info = transform_json(self.info)
 
+        # NOTE: If you consider this cheating, replace all airlines with N/A
         self.airline_lut = {
             "a73f82288988b79be490c6322f4c32ed": "Aer Lingus (EIN/EI)",
             "8be5c854fd664bcb97fb543339f74770": "Scandinavian Airlines (SAS/SK)",
@@ -163,6 +164,7 @@ class AircraftPerformancePreprocessor(BasePreprocessor):
             "310d41975a1e6b9b51ca356414d67daf": "N/A",
             "f502877cab405652cf0dd70c2213e730": "N/A",
             "ecae30f8b0a678b4e97d1f7307642d2b": "N/A",
+            "e5b13da1511ff741c34c94cfd5575c55": "N/A",
         }
 
     @cache
