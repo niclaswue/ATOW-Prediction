@@ -40,7 +40,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
     PaxFlowPreprocessor(),
     WeatherDataPreprocessor(),
     DerivedFeaturePreprocessor(),
-    # PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
+    PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
     CleanDatasetPreprocessor(),
 ]
 
