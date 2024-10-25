@@ -42,5 +42,8 @@ class DerivedFeaturePreprocessor(BasePreprocessor):
             dataset.df["airline"] + "_" + dataset.df["aircraft_type"]
         )
         dataset.df["is_long_distance_flight"] = dataset.df["flown_distance"] > 4500
+        dataset.df["is_flight_to_US"] = dataset.df["country_code_ades"] == "US"
+        dataset.df["is_flight_from_US"] = dataset.df["country_code_adep"] == "US"
+
         print("Done.")
         return dataset
