@@ -9,6 +9,14 @@ import numpy as np
 from multiprocessing import Pool
 from itertools import repeat
 from traffic.core import Flight
+import warnings
+
+#
+# The following functions are used to calculate the trajectory features and generate one single file with the trajectory features
+# The file is saved in the additional_data directory as all_trajectory_features.parquet
+# The functions are used in the TrajectoryPreprocessor class to add the trajectory features to the dataset, if the file is no available
+#
+
 
 root_dir = Path(__file__).parent.parent.absolute()
 additional_data_dir = root_dir / "additional_data"
@@ -17,7 +25,7 @@ single_flight_data_dir = additional_data_dir / "single_flight_data"
 flight_information_file = trajectory_data_dir / "challenge_set.csv"
 
 SPEED_THRESHOLD = 35 #knots
-POOL_NUMBER = 1 # choose 1 for no parallel processing
+POOL_NUMBER = 4 # choose 1 for no parallel processing
 
 flight_information = None
 
@@ -26,6 +34,7 @@ def main() -> None:
     
 def create_trajectory_features_batch() -> None:
     try:
+        global flight_information
         flight_information = pd.read_csv(flight_information_file)
     except FileNotFoundError:
         print("TrajectoryPreprocessor: Flight information file not found.")
@@ -35,11 +44,14 @@ def create_trajectory_features_batch() -> None:
     for date_file in tqdm(list(trajectory_data_dir.glob("*.parquet"))):
         date = date_file.stem
         date_df = pd.read_parquet(date_file)
-        
+        #TODO: Multiprocessing is buggy at the moment
         with Pool(POOL_NUMBER) as p:
-            result = p.starmap(create_trajectory_features, zip([flight_id for flight_id in date_df["flight_id"].unique()], repeat(date_df)) )
-            result_df = pd.concat(result, ignore_index=True)
+            result = p.starmap(create_trajectory_features, [(flight_id, date_df[date_df["flight_id"] == flight_id], flight_information) for flight_id in date_df["flight_id"].unique()] )
+            result_df = pd.concat(result, join="outer")
             result_df.to_parquet(additional_data_dir / "trajectory_features" / f"{date}.parquet", index=False)
+    
+        #result_df = pd.concat([create_trajectory_features(flight_id, date_df[date_df["flight_id"] == flight_id]) for flight_id in date_df["flight_id"].unique()], axis=1)
+        #result_df.to_parquet(additional_data_dir / "trajectory_features" / f"{date}.parquet", index=False)
         
     # combine all the parquet files into one
     all_files = list(additional_data_dir.glob("trajectory_features/\d{4}-\d{2}-\d{2}\.parquet"))
@@ -48,12 +60,21 @@ def create_trajectory_features_batch() -> None:
     
          
             
-def create_trajectory_features(flight_id, trajectory) -> pd.DataFrame:
+def create_trajectory_features(flight_id, trajectory, flight_information) -> pd.DataFrame:
+    if flight_id not in flight_information["flight_id"].values:
+        #print(f"Flight {flight_id} not found in challenge set.")
+        return pd.DataFrame()
     flight = Flight(trajectory)
-    flight = flight.phases(twindow=60)
-    flight = estimate_fuel_flow(flight)
-    flight = flight.compute_distance()
-    flight = flight.compute_TAS()
+    try:
+        flight = flight.phases(twindow=60)
+    except ValueError:
+        with warnings.catch_warnings(action="ignore"):
+            flight.data["phase"] = "NA"
+   
+    flight = flight.cumulative_distance()
+    
+    #TODO: RuntimeError: No wind data in trajectory. Consider Flight.include_grib()
+    #flight = flight.compute_TAS()
     
     
     result = {}
@@ -65,12 +86,14 @@ def create_trajectory_features(flight_id, trajectory) -> pd.DataFrame:
     result["track_distance_m"] = track_distance_m
     
     # not all trajectories are complete, so we check if the trajectory has a takeoff, landing and cruise phase
-    result["has_takeoff_trajectory"] = has_takeoff_trajectory(trajectory)
-    result["has_landing_trajectory"] = has_landing_trajectory(trajectory)
-    result["has_cruise_trajectory"] = has_cruise_trajectory(trajectory)
+    result["has_takeoff_trajectory"] = has_takeoff_trajectory(flight, flight_information)
+    result["has_landing_trajectory"] = has_landing_trajectory(flight, flight_information)
+    result["has_cruise_trajectory"] = has_cruise_trajectory(flight)
    
-   
-    result["fuel_burnt_kg"] = flight.data["fuel"].iloc[-1]
+    # TODO: we should not do this here, as it is not part of the trajectory features, and the weight is not available in the challenge set
+    # 
+    #flight = estimate_fuel_flow(flight)
+    #result["fuel_burnt_kg"] = flight.data["fuel"].iloc[-1]
     
     if result["has_takeoff_trajectory"]:
         result.update(calculate_takeoff_features(flight))
@@ -80,7 +103,7 @@ def create_trajectory_features(flight_id, trajectory) -> pd.DataFrame:
         result["taxi_out_time_s"] = -1
         result["takeoff_mean_acceleration"] = -1
         result["takeoff_max_acceleration"] = -1
-        result["takeoff_roll_distance_m"] = -1
+        #result["takeoff_roll_distance_m"] = -1
         result["v2_speed_kt"] = -1
         result["initclimb_mean_climb"] = -1
         result["initclimb_median_climb"] = -1
@@ -88,10 +111,10 @@ def create_trajectory_features(flight_id, trajectory) -> pd.DataFrame:
         result["initclimb_mean_alt"] = -1
         result["initclimb_median_alt"] = -1
         result["initclimb_max_alt"] = -1
-        result["initclimb_min_tas"] = -1
-        result["initclimb_mean_tas"] = -1
-        result["initclimb_median_tas"] = -1
-        result["initclimb_max_tas"] = -1
+        #result["initclimb_min_tas"] = -1
+        #result["initclimb_mean_tas"] = -1
+        #result["initclimb_median_tas"] = -1
+        #result["initclimb_max_tas"] = -1
         result["initclimb_min_gs"] = -1
         result["initclimb_mean_gs"] = -1
         result["initclimb_median_gs"] = -1
@@ -104,7 +127,7 @@ def create_trajectory_features(flight_id, trajectory) -> pd.DataFrame:
 def calculate_takeoff_features(flight: Flight) -> dict:
     result = {}
     climb = get_initial_climb_trajectory(flight)
-    
+        
     taxi_out_time_s = calculate_taxi_out_time(climb)
     result["taxi_out_time_s"] = taxi_out_time_s
 
@@ -112,22 +135,22 @@ def calculate_takeoff_features(flight: Flight) -> dict:
     result["takeoff_mean_acceleration"] = acceleration.mean()
     result["takeoff_max_acceleration"] = acceleration.max()
 
-    takeoff_roll_distance_m = calculate_takeoff_roll_distance_m(climb)
-    result["takeoff_roll_distance_m"] = takeoff_roll_distance_m
+    #takeoff_roll_distance_m = calculate_takeoff_roll_distance_m(climb)
+    #result["takeoff_roll_distance_m"] = takeoff_roll_distance_m
 
     v2_speed = get_v2_speed(climb)
     result["v2_speed_kt"] = v2_speed
-    
+  
     result["initclimb_mean_climb"] = climb["vertical_rate"].mean()
     result["initclimb_median_climb"] = climb["vertical_rate"].median()
     result["initclimb_max_climb"] = climb["vertical_rate"].max()
     result["initclimb_mean_alt"] = climb["altitude"].mean()
     result["initclimb_median_alt"] = climb["altitude"].median()
     result["initclimb_max_alt"] = climb["altitude"].max()
-    result["initclimb_min_tas"] = climb["TAS"].min()
-    result["initclimb_mean_tas"] = climb["TAS"].mean()
-    result["initclimb_median_tas"] = climb["TAS"].median()
-    result["initclimb_max_tas"] = climb["TAS"].max()
+    #result["initclimb_min_tas"] = climb["TAS"].min()
+    #result["initclimb_mean_tas"] = climb["TAS"].mean()
+    #result["initclimb_median_tas"] = climb["TAS"].median()
+    #result["initclimb_max_tas"] = climb["TAS"].max()
     result["initclimb_min_gs"] = climb["groundspeed"].min()
     result["initclimb_mean_gs"] = climb["groundspeed"].mean()
     result["initclimb_median_gs"] = climb["groundspeed"].median()
@@ -135,19 +158,31 @@ def calculate_takeoff_features(flight: Flight) -> dict:
     
     return result
 
-def has_takeoff_trajectory(flight: Flight) -> bool:
-    adep = flight_information[flight_information["flight_id"] == flight.flight_id]["adep"].values[0]
-    return flight.takeoff_from(adep)
+def has_takeoff_trajectory(flight: Flight, flight_information: pd.DataFrame) -> bool:
+    flight_id = flight.flight_id
+    adep = flight_information[flight_information["flight_id"] == flight_id]["adep"].values[0]
+    if flight.takeoff_from(adep):
+        # check if there is a climb phase within the first hour of the flight
+        first_hour = flight.first(minutes=60)
+        return not first_hour.data.query('phase == "CLIMB"').empty
+    else:
+        return False
 
-def has_landing_trajectory(flight: Flight) -> bool:
-    ades = flight_information[flight_information["flight_id"] == flight.flight_id]["ades"].values[0]
-    return flight.landing_at(ades)
+def has_landing_trajectory(flight: Flight, flight_information: pd.DataFrame) -> bool:
+    flight_id = flight.flight_id
+    ades = flight_information[flight_information["flight_id"] == flight_id]["ades"].values[0]
+    if flight.landing_at(ades):
+        # check if there is a descent phase within the last hour of the flight
+        last_hour = flight.last(minutes=60)
+        return not last_hour.data.query('phase == "DESCENT"').empty
+    else:
+        return False
 
 
 def has_cruise_trajectory(flight: Flight) -> bool:
     return not flight.data.query('10000 < altitude < 40000').empty
     
-    
+# Not used at the moment, as this creates too many files
 def split_trajectories_into_single_flights() -> None:
     if not single_flight_data_dir.exists():
         single_flight_data_dir.mkdir()
@@ -163,11 +198,17 @@ def create_single_flight_parquet(flight_id, trajectories) -> None:
     trajectory.to_parquet(single_flight_data_dir / f"{flight_id}.parquet", index=False)
     
     
-def get_initial_climb_trajectory( flight: Flight) -> Flight:
-    climbs = flight.data[flight.data["phase"] == "CLIMB"]
-    # get the last index of the first climb phase. we have to delete the first index because else it is always 0
-    last_index_of_first_climb = climbs.index.to_series.diff().ne(1).iloc[1:].idxmax() 
-    climb_trajectory = flight.data[:last_index_of_first_climb]
+def get_initial_climb_trajectory( flight: Flight) -> pd.DataFrame:
+    try:
+        climbs = flight.data[flight.data["phase"] == "CLIMB"]
+        # get the last index of the first climb phase. we have to delete the first index because else it is always 0
+        last_index_of_first_climb = climbs.index.to_series().diff().ne(1).iloc[1:].idxmax() 
+        climb_trajectory = flight.data[:last_index_of_first_climb]
+    except ValueError:
+        print(f"Flight {flight.flight_id} has no climb phase.")
+        print(flight.data)
+        print(flight.data.value_counts("phase"))
+        raise ValueError
         
     # Old code from the original preprocessing script, obsolete with the traffic library
     # simple function to get the initial climb trajectory of the aircraft until it reaches an altitude of 5000 ft
@@ -175,13 +216,13 @@ def get_initial_climb_trajectory( flight: Flight) -> Flight:
     #climb_trajectory = trajectory[:first_index_above_5000]
     return climb_trajectory
 
-def calculate_acceleration_on_takeoff_run(flight: Flight) -> pd.Series:
+def calculate_acceleration_on_takeoff_run(trajectory: pd.DataFrame) -> pd.Series:
     try:
         #calculate acceleration in m/s^2, while considering the time difference between each point in the trajectory
-        first_index_above_35knots = flight.data[flight.data["groundspeed"] > SPEED_THRESHOLD ].index[0]
+        first_index_above_35knots = trajectory[trajectory["groundspeed"] > SPEED_THRESHOLD ].index[0]
         
         # i look at the first minute of the takeoff to calculate the acceleration
-        takeoff_and_init_climb = flight.data[first_index_above_35knots-20:first_index_above_35knots+40]
+        takeoff_and_init_climb = trajectory[first_index_above_35knots-20:first_index_above_35knots+40]
 
         #calculate acceleration to previous trajectory point
         acceleration = (takeoff_and_init_climb["groundspeed"].diff() / (takeoff_and_init_climb["timestamp"].diff().dt.total_seconds())) * 0.514444 # convert from knots/s to m/s^2
@@ -210,62 +251,66 @@ def calculate_track_distance_m(trajectory: pd.DataFrame) -> float:
     
     return distances.sum()
     
-def calculate_taxi_out_time(flight: Flight) -> float:
-    try:
-        # Calculate the time taken for the aircraft to taxi out from the gate to the runway
-        # Taxi out time is the time taken from the first point in the trajectory where the speed exceeds 2 knots to the first point where it exceeds 35 knots
-        # TODO check whether this matches the values in the dataset
-        # TODO check if the speed below 35 knots is a good cutoff point (would not excpect any plane to taxi faster than this...)
-        
-        taxi_out_traj = flight.data[(flight.data["groundspeed"] > 2) & (flight.ata["groundspeed"] < SPEED_THRESHOLD)]
-        taxi_out_time = (taxi_out_traj["timestamp"].max() - taxi_out_traj["timestamp"].min())
-        return taxi_out_time.total_seconds()
-    except:
-        return 0
+def calculate_taxi_out_time(trajectory: pd.DataFrame) -> float:
     
-def calculate_takeoff_roll_distance_m(flight: Flight) -> float:
-    try:
-        # look at the first time speed is above 35 knots, 
-        first_index_above_35knots = find_first_index_with_streak_above(flight, "groundspeed", SPEED_THRESHOLD, count=5)
-        # from there, go back to the lowest previous speed before it rises again to set the point where the takeoff roll starts
-        takeoff_roll_start = first_index_above_35knots
-        for i in range(first_index_above_35knots, 0, -1):
-            if flight.data.loc[i, "groundspeed"] < flight.data.loc[takeoff_roll_start, "groundspeed"]:
+    # Calculate the time taken for the aircraft to taxi out from the gate to the runway
+    # Taxi out time is the time taken from the first point in the trajectory where the speed exceeds 2 knots to the first point where it exceeds 35 knots
+    # TODO check whether this matches the values in the dataset
+    # TODO check if the speed below 35 knots is a good cutoff point (would not excpect any plane to taxi faster than this...)
+    
+    taxi_out_traj = trajectory[(trajectory["groundspeed"] > 3) & (trajectory["groundspeed"] < SPEED_THRESHOLD)]
+    taxi_out_time = (taxi_out_traj["timestamp"].max() - taxi_out_traj["timestamp"].min())
+    return taxi_out_time.total_seconds()
+
+    
+def calculate_takeoff_roll_distance_m(trajectory: pd.DataFrame) -> float:
+    # look at the first time speed is above 35 knots, 
+    first_index_above_35knots = find_first_index_with_streak_above(trajectory, "groundspeed", SPEED_THRESHOLD, count=5)
+    # from there, go back to the lowest previous speed before it rises again to set the point where the takeoff roll starts
+    takeoff_roll_start = first_index_above_35knots
+    #iterate back to find the lowest speed before the speed increases again, or as far as 20 ticks before the first index above 35 knots
+    for i in range(first_index_above_35knots, max(trajectory.index.argmin(), first_index_above_35knots-20), -1):
+        try:
+            if trajectory.loc[i, "groundspeed"] < trajectory.loc[takeoff_roll_start, "groundspeed"]:
                 takeoff_roll_start = i
-            if flight.data.loc[i, "groundspeed"] > flight.data.loc[takeoff_roll_start, "groundspeed"]:
+            if trajectory.loc[i, "groundspeed"] > trajectory.loc[takeoff_roll_start, "groundspeed"]:
                 # speed increases further back, so we break the loop
                 break
-        
-        # takeoff roll ends when vertical speed is positive (say above 2 m/s)	
-        takeoff_roll_end = flight.data[flight.data["vertical_rate"] > 100].index[0]
-        
-        # calculate haversine distance between the two points
-        lat1 = np.radians(flight.data.loc[takeoff_roll_start, "latitude"])
-        lon1 = np.radians(flight.data.loc[takeoff_roll_start, "longitude"])
-        lat2 = np.radians(flight.data.loc[takeoff_roll_end, "latitude"])
-        lon2 = np.radians(flight.data.loc[takeoff_roll_end, "longitude"])
-        
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-        
-        a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
-        c = 2 * np.arcsin(np.sqrt(a))
-        
-        R = 6371000  # radius of the earth in meters
-        distance = R * c
-        
-        return distance
-    except:
-        return 0
+        except KeyError:
+            # there is a break in the trajectory, so we keep the last index
+            break
+    
+    # takeoff roll ends when vertical speed is positive
+    takeoff_roll_end = trajectory[trajectory["vertical_rate"] > 200].index[0]
+    
+    if takeoff_roll_end <= takeoff_roll_start:
+        # if the data is not accurate enough, we return -1
+        return -1
+    
+    # calculate haversine distance between the two points
+    lat1 = np.radians(trajectory.loc[takeoff_roll_start, "latitude"])
+    lon1 = np.radians(trajectory.loc[takeoff_roll_start, "longitude"])
+    lat2 = np.radians(trajectory.loc[takeoff_roll_end, "latitude"])
+    lon2 = np.radians(trajectory.loc[takeoff_roll_end, "longitude"])
+    
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    
+    a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
+    c = 2 * np.arcsin(np.sqrt(a))
+    
+    R = 6371000  # radius of the earth in meters
+    distance = R * c
+    
+    return distance
 
-def get_v2_speed(flight: Flight) -> float:
-    try:
-        # very basic estimation of the v2 speed
-        first_index_positive_climb_rate = flight.data[flight.data["vertical_rate"] > 100].index[0]
-        v2 = flight.data.loc[first_index_positive_climb_rate, "groundspeed"]
-        return v2
-    except:
-        return 0
+def get_v2_speed(trajectory: pd.DataFrame) -> float:
+    # very basic estimation of the v2 speed
+    first_index_positive_climb_rate = trajectory[trajectory["vertical_rate"] > 200].index[0]
+    v2 = trajectory.loc[first_index_positive_climb_rate, "groundspeed"]
+    return v2
+    
+        
     
 def get_cruise_data(flight: Flight) -> dict:
     # get the longest level flight segment and the altitude of the aircraft during this segment with mean cruise speed
@@ -273,6 +318,8 @@ def get_cruise_data(flight: Flight) -> dict:
     #segments_ids = begin_of_phase.cumsum()
     
     cruise_altitude = flight.data["altitude"].value_counts().idxmax()
+    
+    # TODO use pandas.mode() instead of manually counting the values
     
     # Idea: iterate through the flight and find the longest consecutive streak of the cruise altitude to get the longest cruise phase for altitude and speed calculation
     # 
@@ -296,12 +343,20 @@ def get_cruise_data(flight: Flight) -> dict:
 
     longest_cruise_phase = flight.data.iloc[start_index:end_index]
     mean_cruise_speed = longest_cruise_phase["groundspeed"].mean()
+    median_cruise_speed = longest_cruise_phase["groundspeed"].median()
+    lowest_cruise_speed = longest_cruise_phase["groundspeed"].min()
+    highest_cruise_speed = longest_cruise_phase["groundspeed"].max()
+    cruise_speed_std = longest_cruise_phase["groundspeed"].std()
     longest_cruise_duration = longest_cruise_phase["timestamp"].max() - longest_cruise_phase["timestamp"].min() 
 
     return {
         'altitude': cruise_altitude,
-        'longest_cruise_duration': longest_cruise_duration.total_seconds(),
-        'mean_cruise_speed': mean_cruise_speed
+        'longest_cruise_duration_s': longest_cruise_duration.total_seconds(),
+        'mean_cruise_speed': mean_cruise_speed,
+        'median_cruise_speed': median_cruise_speed,
+        'lowest_cruise_speed': lowest_cruise_speed,
+        'highest_cruise_speed': highest_cruise_speed, 
+        'cruise_speed_std': cruise_speed_std
     }
     
 def find_first_index_with_streak_above(data, column, value, count=10) -> int:
@@ -323,10 +378,13 @@ def has_diverted(flight: Flight) -> bool:
     # TODO we need to have a destination in the data to use this function
     return flight.data["diverted"].any()
     
-def estimate_fuel_flow(flight: Flight) -> Flight:
+
+def estimate_fuel_flow(flight: Flight, flight_information: pd.DataFrame) -> Flight:
     # estimate the fuel flow of the aircraft during the flight by using the tow from the competition data
-    initial_mass = flight_information[flight_information["flight_id"] == flight.flight_id]["tow"].values[0]
-    typecode = flight_information[flight_information["flight_id"] == flight.flight_id]["aircraft_type"].values[0]
+    if flight.flight_id not in flight_information["flight_id"].values:
+        return flight
+    initial_mass = flight_information[flight_information["flight_id"] == flight.flight_id]["tow"].values[0] or None
+    typecode = flight_information[flight_information["flight_id"] == flight.flight_id]["aircraft_type"].values[0] or None
     
     # TODO: we could find out the engine type most probably used by the airline and actype maybe? 
     
