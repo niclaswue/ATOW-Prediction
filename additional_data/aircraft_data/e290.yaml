@@ -1,0 +1,44 @@
+aircraft: E190E2
+mtow: 56400     # Maximum Takeoff Weight in kg
+mlw: 49050      # Maximum Landing Weight in kg
+oew: 33000      # Operating Empty Weight in kg (estimated from payload and MTOW)
+mfc: 13500      # Maximum Fuel Capacity in liters
+vmo: 470        # Maximum Operating Speed in knots (estimated from M0.82)
+mmo: 0.82       # Maximum Mach Operating Speed
+ceiling: 12497   # Service Ceiling in meters (41000 ft)
+pax:
+  max: 114      # Maximum passenger capacity (single class @ 29" pitch)
+  low: 97       # Typical low-density configuration (three class)
+  high: 106     # Typical high-density configuration (single class @ 31" pitch)
+fuselage:
+  length: 36.20  # Fuselage length in meters
+  height: 2.10   # Cabin height in meters (estimated)
+  width: 3.01    # Cabin width in meters (estimated)
+wing:
+  area: 103.4    # Wing area in square meters (estimated from span and aspect ratio)
+  span: 33.70    # Wing span in meters
+  mac: 3.40      # Mean Aerodynamic Chord in meters (estimated)
+  sweep: 25.0    # Wing sweep angle in degrees (estimated)
+  t/c: 0.11      # Thickness to chord ratio (estimated)
+flaps:
+  type: double-slotted  # Estimated based on aircraft class
+  area: 17.6     # Flap area in square meters (estimated)
+  bf/b: 0.70     # Flap span ratio (estimated)
+  lambda_f: 0.85 # Flap taper ratio (estimated)
+  cf/c: 0.30     # Flap chord ratio (estimated)
+  Sf/S: 0.17     # Flap area ratio (estimated)
+cruise:
+  height: 11000  # Typical cruise altitude in meters
+  mach: 0.78     # Normal cruise Mach number (specified as optimum speed)
+engine:
+  type: turbofan
+  mount: wing
+  number: 2
+  default: PW1919G
+  options:
+    - PW1919G    # 85-102kN thrust range
+drag:
+  cd0: 0.024     # Zero-lift drag coefficient (estimated)
+  k: 0.040       # Induced drag factor (estimated)
+  e: 0.85        # Oswald efficiency factor (estimated)
+  gears: 0.015   # Landing gear drag increment (estimated)

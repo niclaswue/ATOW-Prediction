@@ -1,0 +1,47 @@
+aircraft: A310
+mtow: 150000    # Maximum Takeoff Weight in kg (A310-300)
+mlw: 123000     # Maximum Landing Weight in kg (A310-300)
+oew: 82600      # Operating Empty Weight in kg (A310-300)
+mfc: 61070      # Maximum Fuel Capacity in liters
+vmo: 480        # Maximum Operating Speed in knots
+mmo: 0.84       # Maximum Mach Operating Speed
+ceiling: 12192   # Service Ceiling in meters (41000 ft)
+pax:
+  max: 247      # Maximum passenger capacity
+  low: 187      # Typical low-density configuration
+  high: 220     # Typical high-density configuration
+fuselage:
+  length: 46.66  # Fuselage length in meters
+  height: 2.33   # Cabin height in meters
+  width: 5.28    # Cabin width in meters
+wing:
+  area: 219     # Wing area in square meters
+  span: 43.90   # Wing span in meters
+  mac: 5.0      # Mean Aerodynamic Chord in meters (estimated)
+  sweep: 28.0   # Wing sweep angle in degrees
+  t/c: 0.11     # Thickness to chord ratio (estimated)
+flaps:
+  type: double-slotted  # Estimated based on era and type
+  area: 37.2    # Flap area in square meters (estimated)
+  bf/b: 0.75    # Flap span ratio (estimated)
+  lambda_f: 0.90  # Flap taper ratio (estimated)
+  cf/c: 0.30    # Flap chord ratio (estimated)
+  Sf/S: 0.17    # Flap area ratio (estimated)
+cruise:
+  height: 11000  # Typical cruise altitude in meters
+  mach: 0.80    # Normal cruise Mach number
+engine:
+  type: turbofan
+  mount: wing
+  number: 2
+  default: CF6-80C2A2
+  options:
+    - CF6-80C2A2
+    - CF6-80C2A8
+    - PW4152
+    - PW4156A
+drag:
+  cd0: 0.018    # Zero-lift drag coefficient (estimated)
+  k: 0.045      # Induced drag factor (estimated)
+  e: 0.85       # Oswald efficiency factor (estimated)
+  gears: 0.015  # Landing gear drag increment (estimated)

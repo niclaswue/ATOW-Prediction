@@ -1,0 +1,44 @@
+aircraft: CRJ-900
+mtow: 38330    # Maximum Takeoff Weight in kg (matches most sources)
+mlw: 33340     # Maximum Landing Weight in kg (73500 lbs converted)
+oew: 21845     # Operating Empty Weight in kg (48160 lbs converted)
+mfc: 8888      # Maximum Fuel Capacity in kg (19595 lbs fuel capacity)
+vmo: 470       # Maximum Operating Speed in knots (from specifications)
+mmo: 0.85      # Maximum Mach Operating Speed
+ceiling: 12500  # Service Ceiling in meters (41000 ft converted)
+pax:
+  max: 90      # Maximum passenger capacity
+  low: 76      # Typical low-density configuration
+  high: 88     # Typical high-density configuration
+fuselage:
+  length: 36.37  # Fuselage length in meters (from Lufthansa specs)
+  height: 1.89   # Cabin height in meters (74.4 inches converted)
+  width: 2.55    # Cabin width in meters (from specs)
+wing:
+  area: 71.1    # Wing area in square meters (765 sq ft converted)
+  span: 24.85   # Wing span in meters (from multiple sources)
+  mac: 3.35     # Mean Aerodynamic Chord in meters (keeping previous value)
+  sweep: 24.0   # Wing sweep angle in degrees
+  t/c: 0.12     # Thickness to chord ratio
+flaps:
+  type: double-slotted
+  area: 12.5    # Flap area in square meters
+  bf/b: 0.70    # Flap span ratio
+  lambda_f: 0.85  # Flap taper ratio
+  cf/c: 0.30    # Flap chord ratio
+  Sf/S: 0.177   # Flap area ratio
+cruise:
+  height: 11000  # Typical cruise altitude in meters
+  mach: 0.78    # Cruise Mach number (from specifications)
+engine:
+  type: turbofan
+  mount: tail
+  number: 2
+  default: CF34-8C5
+  options:
+    - CF34-8C5   # Only one engine option available
+drag:
+  cd0: 0.025    # Zero-lift drag coefficient
+  k: 0.045      # Induced drag factor
+  e: 0.78       # Oswald efficiency factor
+  gears: 0.018  # Landing gear drag increment

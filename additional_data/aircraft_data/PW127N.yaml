@@ -1,0 +1,33 @@
+uid: 19PW129
+name: PW127N
+manufacturer: Pratt & Whitney Canada
+type: TF
+bpr: 5.6  # Estimated based on similar P&W engines
+pr: 33.0  # Given as OPR in specs
+max_thrust: 11742  # Converted from 2,619 shp using typical conversion factors
+ei_hc_to: 0.0  # Estimated based on similar modern P&W engines
+ei_hc_co: 0.0
+ei_hc_app: 0.02
+ei_hc_idl: 0.05
+ei_co_to: 0.0
+ei_co_co: 0.0
+ei_co_app: 1.76
+ei_co_idl: 13.88
+ei_nox_to: 23.0  # Estimated based on similar P&W engines
+ei_nox_co: 17.5
+ei_nox_app: 11.0
+ei_nox_idl: 6.0
+ff_to: 0.65  # Estimated based on similar engines
+ff_co: 0.54
+ff_app: 0.19
+ff_idl: 0.07
+fuel_lto: 250  # Estimated based on similar size engines
+fuel_c3: 0.070  # Estimated based on similar P&W models
+fuel_c2: 0.050
+fuel_c1: 0.510
+fuel_a: 0.320
+fuel_b: 0.452
+cruise_thrust: 2880  # Estimated based on typical cruise/takeoff ratio
+cruise_sfc: 0.023   # Given in specs
+cruise_mach: 0.8    # Typical for ATR 72
+cruise_alt: 40000   # Typical service ceiling for ATR 72

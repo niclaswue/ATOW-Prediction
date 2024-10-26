@@ -1,0 +1,46 @@
+aircraft: ATR72-600
+mtow: 23000    # Maximum Takeoff Weight in kg
+mlw: 22350     # Maximum Landing Weight in kg
+oew: 13450     # Operating Empty Weight in kg (typical in-service)
+mfc: 5700      # Maximum Fuel Capacity in liters
+vmo: 275       # Maximum Operating Speed in knots
+mmo: 0.55      # Maximum Mach Operating Speed (estimated based on max speed)
+ceiling: 7620  # Service Ceiling in meters (25,000 ft)
+pax:
+  max: 78      # Maximum passenger capacity (high-density layout)
+  low: 68      # Typical low-density configuration
+  high: 74     # Typical high-density configuration (standard)
+fuselage:
+  length: 27.17  # Fuselage length in meters
+  height: 2.57   # Cabin height in meters
+  width: 2.69    # Cabin width in meters (estimated)
+wing:
+  area: 61.0    # Wing area in square meters
+  span: 27.05   # Wing span in meters
+  mac: 2.45     # Mean Aerodynamic Chord in meters (estimated)
+  sweep: 15.0   # Wing sweep angle in degrees (estimated)
+  t/c: 0.12     # Thickness to chord ratio (estimated)
+flaps:
+  type: double-slotted
+  area: 12.2    # Flap area in square meters (estimated)
+  bf/b: 0.70    # Flap span ratio (estimated)
+  lambda_f: 0.85  # Flap taper ratio (estimated)
+  cf/c: 0.30    # Flap chord ratio (estimated)
+  Sf/S: 0.20    # Flap area ratio (estimated)
+cruise:
+  height: 5200   # Typical cruise altitude in meters (FL170)
+  mach: 0.44    # Normal cruise Mach number (based on 275 KTAS)
+engine:
+  type: turboprop
+  mount: wing
+  number: 2
+  default: PW127N
+  options:
+    - PW127M
+    - PW127N
+    - PW127XT
+drag:
+  cd0: 0.028    # Zero-lift drag coefficient (estimated)
+  k: 0.045      # Induced drag factor (estimated)
+  e: 0.80       # Oswald efficiency factor (estimated)
+  gears: 0.018  # Landing gear drag increment (estimated)

@@ -1,0 +1,45 @@
+aircraft: BCS1
+mtow: 60781    # Maximum Takeoff Weight in kg (Max variant)
+mlw: 52390     # Maximum Landing Weight in kg
+oew: 52000     # Maximum Empty Weight in kg
+mfc: 21805     # Maximum Fuel Capacity in liters
+vmo: 470       # Maximum Operating Speed in knots (M0.82 at cruise altitude)
+mmo: 0.82      # Maximum Mach Operating Speed
+ceiling: 12500  # Service Ceiling in meters (41000 ft)
+pax:
+  max: 135     # Maximum passenger capacity (1-class, 71cm pitch)
+  low: 108     # Typical low-density configuration (2-class)
+  high: 125    # Typical high-density configuration (1-class, 76cm pitch)
+fuselage:
+  length: 35.00  # Fuselage length in meters
+  height: 2.11   # Cabin height in meters
+  width: 3.28    # Cabin width in meters
+wing:
+  area: 112.3   # Wing area in square meters
+  span: 35.10   # Wing span in meters
+  mac: 3.82     # Mean Aerodynamic Chord in meters (estimated)
+  sweep: 35.0   # Wing sweep angle in degrees (estimated)
+  t/c: 0.11     # Thickness to chord ratio
+flaps:
+  type: single-slotted
+  area: 19.2    # Flap area in square meters (estimated)
+  bf/b: 0.75    # Flap span ratio
+  lambda_f: 0.90  # Flap taper ratio
+  cf/c: 0.25    # Flap chord ratio
+  Sf/S: 0.171   # Flap area ratio
+cruise:
+  height: 11000  # Typical cruise altitude in meters
+  mach: 0.78    # Normal cruise Mach number (from performance data)
+engine:
+  type: turbofan
+  mount: wing
+  number: 2
+  default: PW1524G
+  options:
+    - PW1524G
+    - PW1521G
+drag:
+  cd0: 0.024    # Zero-lift drag coefficient (estimated)
+  k: 0.042      # Induced drag factor (estimated)
+  e: 0.85       # Oswald efficiency factor (estimated)
+  gears: 0.016  # Landing gear drag increment (estimated)

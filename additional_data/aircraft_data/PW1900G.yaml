@@ -1,0 +1,33 @@
+uid: 18PW124
+name: PW1919G
+manufacturer: Pratt & Whitney
+type: TF
+bpr: 12.0  # Estimated based on similar P&W GTF engines
+pr: 40.0   # Estimated based on similar P&W GTF engines
+max_thrust: 22550  # Given in specifications
+ei_hc_to: 0.02    # Estimated based on similar GTF engines
+ei_hc_co: 0.04
+ei_hc_app: 0.02
+ei_hc_idl: 0.43
+ei_co_to: 0.22
+ei_co_co: 0.30
+ei_co_app: 5.36
+ei_co_idl: 27.93
+ei_nox_to: 18.82  # Estimated based on similar GTF engines
+ei_nox_co: 15.30
+ei_nox_app: 9.07
+ei_nox_idl: 4.84
+ff_to: 0.80       # Estimated based on similar GTF engines
+ff_co: 0.67
+ff_app: 0.2322
+ff_idl: 0.08
+fuel_lto: 303     # Estimated based on similar size GTF engines
+fuel_c3: -0.0765343  # Estimated based on similar P&W GTF models
+fuel_c2: 0.265501
+fuel_c1: 0.572374
+fuel_a: 0.389584
+fuel_b: 0.445561
+cruise_thrust: 17000  # Estimated based on typical cruise/takeoff ratio
+cruise_sfc: 0.545    # Estimated based on similar GTF engines
+cruise_mach: 0.82    # Typical for E190-E2
+cruise_alt: 41000    # Typical service ceiling for E190-E2
