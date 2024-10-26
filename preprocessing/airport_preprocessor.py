@@ -36,13 +36,20 @@ CUSTOM_AIRPORTS = {
 
 
 class AirportPreprocessor(BasePreprocessor):
-    def __init__(self, no_cache=False) -> None:
+    def __init__(
+        self,
+        no_cache=False,
+        compute_timezone_features=True,
+        compute_distance_features=True,
+    ) -> None:
         super().__init__(no_cache)
         self.our_airports = pd.read_csv(
             base_path / "additional_data/airport_data/airports.csv"
         )
         self.ap_data = airportsdata.load()
         self.custom_data = CUSTOM_AIRPORTS
+        self.compute_timezone_features = compute_timezone_features
+        self.compute_distance_features = compute_distance_features
         self.tzf = TimezoneFinder()
 
     @cache
@@ -50,6 +57,8 @@ class AirportPreprocessor(BasePreprocessor):
         if len(code) == 3:
             # use IATA code
             airport = self.our_airports[self.our_airports["iata_code"] == code]
+            if len(airport) == 0:
+                airport = self.our_airports[self.our_airports["local_code"] == code]
         else:
             airport = self.our_airports[self.our_airports["ident"] == code]
         if len(airport) > 0:
@@ -111,43 +120,46 @@ class AirportPreprocessor(BasePreprocessor):
                 lambda x: self.get_airport_data(x)[col]
             )
 
-        def local_time(timezone, date):
-            if pd.isna(timezone):
-                return date
-            return date.tz_convert(timezone)
+        if self.compute_timezone_features:
 
-        dataset.df["actual_offblock_time"] = pd.to_datetime(
-            dataset.df["actual_offblock_time"]
-        )
-        dataset.df["arrival_time"] = pd.to_datetime(dataset.df["arrival_time"])
+            def local_time(timezone, date):
+                return date if pd.isna(timezone) else date.tz_convert(timezone)
 
-        dataset.df["adep_local_offblock_time"] = dataset.df[
-            ["adep_tz", "actual_offblock_time"]
-        ].progress_apply(
-            lambda row: local_time(row["adep_tz"], row["actual_offblock_time"]), axis=1
-        )
+            dataset.df["actual_offblock_time"] = pd.to_datetime(
+                dataset.df["actual_offblock_time"]
+            )
+            dataset.df["arrival_time"] = pd.to_datetime(dataset.df["arrival_time"])
 
-        dataset.df["ades_local_arrival_time"] = dataset.df[
-            ["ades_tz", "arrival_time"]
-        ].progress_apply(
-            lambda row: local_time(row["ades_tz"], row["arrival_time"]), axis=1
-        )
+            dataset.df["adep_local_offblock_time"] = dataset.df[
+                ["adep_tz", "actual_offblock_time"]
+            ].progress_apply(
+                lambda row: local_time(row["adep_tz"], row["actual_offblock_time"]),
+                axis=1,
+            )
 
-        @cache
-        def distance_km(ap1, ap2):
-            if pd.isna(list(ap1)).any() or pd.isna(list(ap2)).any():
-                return pd.NA
-            return geopy.distance.geodesic(ap1, ap2).km
+            dataset.df["ades_local_arrival_time"] = dataset.df[
+                ["ades_tz", "arrival_time"]
+            ].progress_apply(
+                lambda row: local_time(row["ades_tz"], row["arrival_time"]), axis=1
+            )
 
-        dataset.df["route_distance_km"] = dataset.df[
-            ["adep_lat", "adep_lon", "ades_lat", "ades_lon"]
-        ].progress_apply(
-            lambda x: distance_km(
-                (x["adep_lat"], x["adep_lon"]), (x["ades_lat"], x["ades_lon"])
-            ),
-            axis=1,
-        )
-        dataset.df["route_distance_mi"] = dataset.df["route_distance_km"] / 1.60934
+        if self.compute_distance_features:
+
+            @cache
+            def distance_km(ap1, ap2):
+                if pd.isna(list(ap1)).any() or pd.isna(list(ap2)).any():
+                    return pd.NA
+                return geopy.distance.geodesic(ap1, ap2).km
+
+            dataset.df["route_distance_km"] = dataset.df[
+                ["adep_lat", "adep_lon", "ades_lat", "ades_lon"]
+            ].progress_apply(
+                lambda x: distance_km(
+                    (x["adep_lat"], x["adep_lon"]), (x["ades_lat"], x["ades_lon"])
+                ),
+                axis=1,
+            )
+            dataset.df["route_distance_mi"] = dataset.df["route_distance_km"] / 1.60934
 
         print("Done.")
         return dataset
