@@ -55,16 +55,14 @@ class OpenAPAircraftPerformancePreprocessor(BasePreprocessor):
         return all_data.iloc[0].to_dict()
 
     def process(self, dataset: Dataset) -> Dataset:
-        # tqdm.pandas()
-
         # combined column
         dataset.df["airline_aircraft"] = (
             dataset.df["airline"] + "_" + dataset.df["aircraft_type"]
         )
 
         cols = self.props_for_aircraft(dataset.df["aircraft_type"].iloc[0]).keys()
-        for col in cols:
-            dataset.df[f"openap_{col}"] = dataset.df["aircraft_type"].progress_apply(
+        for col in tqdm(cols):
+            dataset.df[f"openap_{col}"] = dataset.df["aircraft_type"].apply(
                 lambda x: self.props_for_aircraft(x).get(col)
             )
         return dataset
