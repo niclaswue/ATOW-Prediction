@@ -7,9 +7,9 @@ from pathlib import Path
 from tqdm import tqdm
 import numpy as np
 from multiprocessing import Pool
-from itertools import repeat
 from traffic.core import Flight
 import warnings
+import re
 
 #
 # The following functions are used to calculate the trajectory features and generate one single file with the trajectory features
@@ -44,7 +44,6 @@ def create_trajectory_features_batch() -> None:
     for date_file in tqdm(list(trajectory_data_dir.glob("*.parquet"))):
         date = date_file.stem
         date_df = pd.read_parquet(date_file)
-        #TODO: Multiprocessing is buggy at the moment
         with Pool(POOL_NUMBER) as p:
             result = p.starmap(create_trajectory_features, [(flight_id, date_df[date_df["flight_id"] == flight_id], flight_information) for flight_id in date_df["flight_id"].unique()] )
             result_df = pd.concat(result, join="outer")
@@ -54,7 +53,11 @@ def create_trajectory_features_batch() -> None:
         #result_df.to_parquet(additional_data_dir / "trajectory_features" / f"{date}.parquet", index=False)
         
     # combine all the parquet files into one
-    all_files = list(additional_data_dir.glob("trajectory_features/\d{4}-\d{2}-\d{2}\.parquet"))
+    # Define the regex pattern for yyyy-mm-dd.parquet
+    pattern = re.compile(r"\d{4}-\d{2}-\d{2}\.parquet")
+
+    # Use the pattern to filter the files
+    all_files = [file for file in additional_data_dir.glob("trajectory_features/*.parquet") if pattern.match(file.name)]
     all_data = pd.concat([pd.read_parquet(file) for file in all_files])
     all_data.to_parquet(additional_data_dir / "all_trajectory_features.parquet", index=False)    
     
@@ -65,6 +68,7 @@ def create_trajectory_features(flight_id, trajectory, flight_information) -> pd.
         #print(f"Flight {flight_id} not found in challenge set.")
         return pd.DataFrame()
     flight = Flight(trajectory)
+    
     try:
         flight = flight.phases(twindow=60)
     except ValueError:
@@ -97,6 +101,10 @@ def create_trajectory_features(flight_id, trajectory, flight_information) -> pd.
     
     if result["has_takeoff_trajectory"]:
         result.update(calculate_takeoff_features(flight))
+        
+    if result["has_cruise_trajectory"]:
+        result.update(get_cruise_data(flight))
+        result.update(get_wind_data_level_flight(flight))
         
     else:
         # use negative values for the features if the takeoff trajectory is not complete
@@ -161,26 +169,29 @@ def calculate_takeoff_features(flight: Flight) -> dict:
 def has_takeoff_trajectory(flight: Flight, flight_information: pd.DataFrame) -> bool:
     flight_id = flight.flight_id
     adep = flight_information[flight_information["flight_id"] == flight_id]["adep"].values[0]
-    if flight.takeoff_from(adep):
-        # check if there is a climb phase within the first hour of the flight
-        first_hour = flight.first(minutes=60)
-        return not first_hour.data.query('phase == "CLIMB"').empty
-    else:
+    try:
+        if flight.takeoff_from(adep):
+            # check if there is a climb phase within the first hour of the flight
+            first_hour = flight.first(minutes=60)
+            return not first_hour.data.query('phase == "CLIMB"').empty
+    except ValueError:
         return False
 
 def has_landing_trajectory(flight: Flight, flight_information: pd.DataFrame) -> bool:
     flight_id = flight.flight_id
     ades = flight_information[flight_information["flight_id"] == flight_id]["ades"].values[0]
-    if flight.landing_at(ades):
-        # check if there is a descent phase within the last hour of the flight
-        last_hour = flight.last(minutes=60)
-        return not last_hour.data.query('phase == "DESCENT"').empty
-    else:
+    
+    try:   
+        if flight.landing_at(ades):
+            # check if there is a descent phase within the last hour of the flight
+            last_hour = flight.last(minutes=60)
+            return not last_hour.data.query('phase == "DESCENT"').empty
+    except ValueError:
         return False
 
 
 def has_cruise_trajectory(flight: Flight) -> bool:
-    return not flight.data.query('10000 < altitude < 40000').empty
+    return not flight.data.query('15000 < altitude < 40000').empty
     
 # Not used at the moment, as this creates too many files
 def split_trajectories_into_single_flights() -> None:
@@ -306,8 +317,11 @@ def calculate_takeoff_roll_distance_m(trajectory: pd.DataFrame) -> float:
 
 def get_v2_speed(trajectory: pd.DataFrame) -> float:
     # very basic estimation of the v2 speed
-    first_index_positive_climb_rate = trajectory[trajectory["vertical_rate"] > 200].index[0]
-    v2 = trajectory.loc[first_index_positive_climb_rate, "groundspeed"]
+    try:
+        first_index_positive_climb_rate = trajectory[trajectory["vertical_rate"] > 200].index[0]
+        v2 = trajectory.loc[first_index_positive_climb_rate, "groundspeed"]
+    except IndexError:
+        v2 = -1
     return v2
     
         
@@ -323,41 +337,54 @@ def get_cruise_data(flight: Flight) -> dict:
     
     # Idea: iterate through the flight and find the longest consecutive streak of the cruise altitude to get the longest cruise phase for altitude and speed calculation
     # 
-    for i, row in flight.data.iterrows():
-        if row['altitude'] == cruise_altitude:
-            if current_streak == 0:
-                current_start_index = i
-            current_streak += 1
-        else:
-            if current_streak > longest_streak:
-                longest_streak = current_streak
-                start_index = current_start_index
-                end_index = i - 1
-            current_streak = 0
+    
+    cruise_altitude = flight.data["altitude"].mode()[0]
+    flight_at_cruise_altitude = flight.data[flight.data["altitude"] == cruise_altitude]
 
-    # Check the last streak
-    if current_streak > longest_streak:
-        longest_streak = current_streak
-        start_index = current_start_index
-        end_index = len(flight.data) - 1
-
-    longest_cruise_phase = flight.data.iloc[start_index:end_index]
-    mean_cruise_speed = longest_cruise_phase["groundspeed"].mean()
-    median_cruise_speed = longest_cruise_phase["groundspeed"].median()
-    lowest_cruise_speed = longest_cruise_phase["groundspeed"].min()
-    highest_cruise_speed = longest_cruise_phase["groundspeed"].max()
-    cruise_speed_std = longest_cruise_phase["groundspeed"].std()
-    longest_cruise_duration = longest_cruise_phase["timestamp"].max() - longest_cruise_phase["timestamp"].min() 
+    mean_cruise_speed = flight_at_cruise_altitude["groundspeed"].mean()
+    median_cruise_speed = flight_at_cruise_altitude["groundspeed"].median()
+    lowest_cruise_speed = flight_at_cruise_altitude["groundspeed"].min()
+    highest_cruise_speed = flight_at_cruise_altitude["groundspeed"].max()
+    cruise_speed_std = flight_at_cruise_altitude["groundspeed"].std()
 
     return {
-        'altitude': cruise_altitude,
-        'longest_cruise_duration_s': longest_cruise_duration.total_seconds(),
+        'cruise_altitude': cruise_altitude,
         'mean_cruise_speed': mean_cruise_speed,
         'median_cruise_speed': median_cruise_speed,
         'lowest_cruise_speed': lowest_cruise_speed,
         'highest_cruise_speed': highest_cruise_speed, 
         'cruise_speed_std': cruise_speed_std
     }
+    
+def get_wind_data_level_flight(flight: Flight) -> dict:
+    
+    #filter level cruise phase
+    flight = flight.query('15000 < altitude < 40000')
+    
+    if flight is None:
+        return {
+            'average_headwind': -1,
+            'max_headwind': -1,
+            'min_headwind': -1,
+            'std_headwind': -1
+        }
+    track_rad = np.radians(flight.data['track'])
+    wind_speed = np.sqrt(flight.data['u_component_of_wind']**2 + flight.data['v_component_of_wind']**2)
+    wind_direction = np.arctan2(flight.data['u_component_of_wind'], flight.data['v_component_of_wind'])
+    
+    # Calculate headwind component
+    # Positive values indicate headwind, negative values indicate tailwind
+    headwind = wind_speed * np.cos(wind_direction - track_rad)
+    
+    
+    result = {
+        'average_headwind': headwind.mean(),
+        'max_headwind': headwind.max(),
+        'min_headwind': headwind.min(),
+        'std_headwind': headwind.std()
+    }
+    
+    return result
     
 def find_first_index_with_streak_above(data, column, value, count=10) -> int:
     # this function returns the first index, where a streak begins with at least count values above the given value, or last index if no such streak is found
