@@ -47,7 +47,11 @@ class AirportPreprocessor(BasePreprocessor):
 
     @cache
     def get_airport_data(self, code):
-        airport = self.our_airports[self.our_airports["ident"] == code]
+        if len(code) == 3:
+            # use IATA code
+            airport = self.our_airports[self.our_airports["iata_code"] == code]
+        else:
+            airport = self.our_airports[self.our_airports["ident"] == code]
         if len(airport) > 0:
             airport = airport.iloc[0]
             lat, lon = (
