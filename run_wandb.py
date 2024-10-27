@@ -46,21 +46,20 @@ parser.add_argument(
 args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
-    AirportPreprocessor(),
-    OpenAPAircraftPerformancePreprocessor(),
-    AircraftPerformancePreprocessor(),
-    FuelPricePreprocessor(),
-    RunwayInfoPreprocessor(),
-    PaxFlowPreprocessor(),
-    WeatherDataPreprocessor(),
-    WeatherSafetyFeatures(),
-    DerivedFeaturePreprocessor(),
-    TrajectoryPreprocessor(),
-    OpenAPFuelFlowPreprocessor(),
-    FeatureEngineeringPreprocessor(),
-    CreativeWeightPreprocessor(),
-    CleanDatasetPreprocessor(),
-    # SampleWeightPreprocessor(max_weight_ratio=2.0),
+    AirportPreprocessor(no_cache=True),
+    OpenAPAircraftPerformancePreprocessor(no_cache=True),
+    AircraftPerformancePreprocessor(no_cache=True),
+    FuelPricePreprocessor(no_cache=True),
+    RunwayInfoPreprocessor(no_cache=True),
+    PaxFlowPreprocessor(no_cache=True),
+    WeatherDataPreprocessor(no_cache=True),
+    WeatherSafetyFeatures(no_cache=True),
+    DerivedFeaturePreprocessor(no_cache=True),
+    TrajectoryPreprocessor(no_cache=True),
+    OpenAPFuelFlowPreprocessor(no_cache=True),
+    FeatureEngineeringPreprocessor(no_cache=True),
+    CreativeWeightPreprocessor(no_cache=True),
+    CleanDatasetPreprocessor(no_cache=True),
 ]
 
 model_config = {
