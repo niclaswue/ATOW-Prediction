@@ -16,7 +16,15 @@ from preprocessing.weather import WeatherDataPreprocessor
 from preprocessing.derived_features import DerivedFeaturePreprocessor
 from preprocessing.airport_preprocessor import AirportPreprocessor
 from preprocessing.trajectory_preprocessor import TrajectoryPreprocessor
-from preprocessing.payload_prediction_preprocessor import PayloadPredictionPreprocessor
+from preprocessing.weather_safety_features import WeatherSafetyFeatures
+
+# from preprocessing.payload_prediction_preprocessor import PayloadPredictionPreprocessor
+from preprocessing.feature_engineering import FeatureEngineeringPreprocessor
+from preprocessing.creative_feature_engineering import CreativeWeightPreprocessor
+from preprocessing.openap_fuelflow import OpenAPFuelFlowPreprocessor
+from preprocessing.aircraft_performance_openap import (
+    OpenAPAircraftPerformancePreprocessor,
+)
 
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
@@ -35,14 +43,18 @@ args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
     AirportPreprocessor(),
+    OpenAPAircraftPerformancePreprocessor(),
     AircraftPerformancePreprocessor(),
     FuelPricePreprocessor(),
     RunwayInfoPreprocessor(),
     PaxFlowPreprocessor(),
     WeatherDataPreprocessor(),
+    WeatherSafetyFeatures(),
     DerivedFeaturePreprocessor(),
-    # PayloadPredictionPreprocessor(model_path="additional_models/t100_payload"),
     TrajectoryPreprocessor(),
+    OpenAPFuelFlowPreprocessor(),
+    FeatureEngineeringPreprocessor(),
+    CreativeWeightPreprocessor(),
     CleanDatasetPreprocessor(),
 ]
 
