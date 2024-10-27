@@ -69,16 +69,20 @@ model = AutogluonModel(**model_config)
 loader = DataLoader(Path("data"), num_days=0)
 
 
-def train(dataset):
+def train(dataset, final=False):
     for preprocessor in PREPROCESSORS:
         dataset = preprocessor.apply(dataset)
 
-    train_df, val_df = dataset.split(train_percent=0.99, seed=0)
+    train_percent = 1.0 if final else 0.9
+    train_df, val_df = dataset.split(train_percent=train_percent, seed=0)
     print(f"\n\nTraining model {model.name}")
     model.train(train_df)
-    predictions = model.predict(val_df)
-    evaluator.evaluate_and_log(val_df.tow, predictions)
 
+    if not final:
+        predictions = model.predict(val_df)
+        evaluator.evaluate_and_log(val_df.tow, predictions)
+
+    wandb.log_model(output, name="model")
     model.log_feature_importance(train_df)
     return model
 
@@ -95,6 +99,6 @@ if __name__ == "__main__":
 
     output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log({"raw_model_info": model.info()})
-    wandb.log_model(output, name="model")
+    # wandb.log_model(output, name="model")
 
     print("Done with training.")
