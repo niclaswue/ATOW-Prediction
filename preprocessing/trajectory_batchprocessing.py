@@ -11,6 +11,7 @@ from traffic.core import Flight
 import warnings
 import re
 import random
+
 #
 # The following functions are used to calculate the trajectory features and generate one single file with the trajectory features
 # The file is saved in the additional_data directory as all_trajectory_features.parquet
@@ -48,9 +49,7 @@ def create_trajectory_features_batch() -> None:
     random.shuffle(file_list)
     for date_file in tqdm(file_list):
         date = date_file.stem
-        if f"{date}.parquet" in (additional_data_dir / "trajectory_features").glob(
-            "*.parquet"
-        ):
+        if (additional_data_dir / "trajectory_features" / f"{date}.parquet").exists():
             print(f"{date} exists, skipping...")
             continue
         date_df = pd.read_parquet(date_file)
