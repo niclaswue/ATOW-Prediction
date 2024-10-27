@@ -74,7 +74,7 @@ We purposefully designed our project to be able to include various data sources 
    - Add model-specific configurations and hyperparameters
   
 ## What we didnt do
-We took great care to not overfit our model on the submission set. We could have specifically filtered our training data to be most similar to the samples in the submission set or we could weight samples differently to boost our score. However, we decided that this would be against the spirit of the challenge as the model has to also work on new and unseen data. 
+We took great care to not overfit our model on the submission set. We could have specifically filtered our training data to be most similar to the samples in the submission set or we implemented different weights for sample to boost our score. However, we decided that this would likely lead to overfitting and would be against the spirit of the challenge, as the model should work equally well on new and unseen data. 
 
 ## What we wanted to do
 To see part of how we got to this solution, you can take a look in the (../museum)[museum]. We spend a lot of time trying to integrate the T100 filings provided by the United States Department of Transportation. We also had some more ideas that we were not able to try out due to the looming deadline. We especially think that our approach combined with a trajectory based model could be very powerful.
