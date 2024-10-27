@@ -60,6 +60,14 @@ python download_scripts/scrape_aircraft_info.py
 For an overview of all the additional datasets see the list of [additional data sources](documentation/additional_data_sources.md).
 
 ### Prepare Trajectory Features
+For the next step, you will need a separate conda environment with the `traffic` library installed.
+```
+# Example Installation
+conda create -n traffic -c conda-forge python=3.10 traffic
+conda activate traffic
+```
+Otherwise refer to [Traffic docs](https://traffic-viz.github.io/installation.html).
+
 Our model takes some input features from the OSN Trajectories. Running the Preprocessing of the Trajectories can take a while, therefore this is done in a separate step and the result is saved as `all_trajectory_features.parquet` in the `additional_data` directory.
 Excpect this to take multiple hours (up to 10 hours on a regular Laptop PC). On a large machine you may be able to use GNU parallel.
 ```
