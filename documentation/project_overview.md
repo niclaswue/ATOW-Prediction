@@ -3,7 +3,7 @@ Our project combines various data sources into a customizable data pipeline for 
 
 
 ## Data Pipeline Overview
-TODO für Niclas -> Deine Grafik?
+![](data_flow.png)
 
 
 
