@@ -11,15 +11,27 @@ W&B allows us to monitor the training in the browser from anywhere, including pl
 
 
 ## Preprocessor Overview
-We now describe all used preprocessors and how the transform the dataset. Single feature columns are described [here](dataset_overview.md).
-The preprocessors are described in the order they are used.
+We now describe all used preprocessors and how the transform the dataset. A comprehensive overview of these features is available [here](dataset_overview.md). 
+All preprocessors are described in the order they are used in the final submission.
 
 ### AirportPreprocessor
+Adds information about the adep or ades airport to the dataset. Specifically, we use data from [ourairports.com](http://ourairports.com/data/) and from [airportsdata](https://github.com/mborsetti/airportsdata/). Some small number of missing airports was researched manually online. Additionally, we add timezone features and distance features.
+
 ### OpenAPAircraftPerformancePreprocessor
+We use [openap](https://openap.dev/) for aircraft and engine properties. Additional, engines and aircraft not present in openap where researched manually. Values that could not be found where estimated by the Claude language model.
+
 ### AircraftPerformancePreprocessor
+We found that some important values like MTOW differed very slightly. They of course depend on the specific aircraft in question, however we thought it would be useful to have an alternative data source for aircraft performance. We therefore build a scraper to scrape the pages  "https://oneworldvirtual.org", "https://staralliancevirtual.org" and "https://skyteamvirtual.org". These also include seat configurations for each airline. To determine the airline we manually looked up the routes and aircraft types. This may be controversial, therefore we added a toggle to switch that off.
+
 ### FuelPricePreprocessor
+We thought that the fuel price might have a small impact on the fuel carried. We therefore used an open dataset from United Nations to add fuel prices. Source: [data.un.org](https://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=cmID:JF&DataMartId=EDATA&Format=csv&c=2,5,6,7,8&s=_crEngNameOrderBy:asc,_enID:asc,yr:desc)
+
 ### RunwayInfoPreprocessor
+Using ourairports, we added runway information such as runway length and elevation.
+
 ### PaxFlowPreprocessor
+The passengers on board have the biggest impact on the weight of an aircraft. We therefore add passenger flow features for each airport using [data from the EU](https://ec.europa.eu/eurostat/cache/metadata/en/avia_pa_esms.htm).
+
 ### WeatherDataPreprocessor
 ### WeatherSafetyFeatures
 ### DerivedFeaturePreprocessor
@@ -29,13 +41,11 @@ The preprocessors are described in the order they are used.
 ### CreativeWeightPreprocessor
 ### CleanDatasetPreprocessor
 
-The final dataset has a number of features in addition to the features provided by the PRC Data Challenge training/challenge data. A comprehensive overview of these features is available [here](dataset_overview.md).
 
 ## Final Submission Dataset
 The final submission dataset is once again cleaned, because we found a lot of less important features during our analysis. These feature columns are removed from the dataset with the `CleanDatasetPreprocessor.py`, before the model is trained.   
 
 ## Extensibility
-
 We purposefully designed our project to be able to include various data sources and different machine learning models:
 
 1. **New Data Sources**
@@ -49,4 +59,6 @@ We purposefully designed our project to be able to include various data sources 
    - Customize training and prediction logic of new model
    - Add model-specific configurations and hyperparameters
   
+## What we didnt do
+We took great care to not overfit our model on the submission set. We could have specifically filtered our training data to be most similar to the samples in the submission set or we could weight samples differently to boost our score. However, we decided that this would be against the spirit of the challenge as the model has to also work on new and unseen data. 
 
