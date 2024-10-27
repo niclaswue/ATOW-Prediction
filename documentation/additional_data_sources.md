@@ -1,5 +1,11 @@
 # Additional Data Sources
 
+## OpenAP
+- **Description**: Open-source aircraft performance model for analysis and simulation of aircraft trajectories and fuel consumption
+- **URL**: `https://github.com/TUDelft-CNS-ATM/openap`
+- **License**: GNU General Public License v3.0
+- **Source**: TU Delft Air Transportation and Operations department
+
 ## ISO Country Codes
 - **Description**: Comprehensive list of countries with their ISO codes and regional classifications
 - **URL**: `https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/all/all.csv`
@@ -36,4 +42,3 @@
 - **License**: Public Domain (U.S. Government Work)
 - **Source**: Bureau of Transportation Statistics (BTS)
 - **Additional Info**: Contains monthly data including passengers transported, freight, mail, available capacity, scheduled departures, departures performed, aircraft hours, and load factors
-
