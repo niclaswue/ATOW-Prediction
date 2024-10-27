@@ -60,7 +60,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
     FeatureEngineeringPreprocessor(),
     CreativeWeightPreprocessor(),
     CleanDatasetPreprocessor(),
-    SampleWeightPreprocessor(max_weight_ratio=2.0),
+    # SampleWeightPreprocessor(max_weight_ratio=2.0),
 ]
 
 model_config = {
@@ -87,6 +87,7 @@ def train(dataset, final=False):
         predictions = model.predict(val_df)
         evaluator.evaluate_and_log(val_df.tow, predictions)
 
+    output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log_model(output, name="model")
     model.log_feature_importance(train_df)
     return model
@@ -102,7 +103,6 @@ if __name__ == "__main__":
     challenge, _, _ = loader.load()
     model = train(challenge, final=args.final)
 
-    output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log({"raw_model_info": model.info()})
     # wandb.log_model(output, name="model")
 
