@@ -66,6 +66,3 @@ class OpenAPAircraftPerformancePreprocessor(BasePreprocessor):
                 lambda x: self.props_for_aircraft(x).get(col)
             )
         return dataset
-
-
-# TODO: Add icao engine data
