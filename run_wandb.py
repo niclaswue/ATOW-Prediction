@@ -60,7 +60,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
     FeatureEngineeringPreprocessor(),
     CreativeWeightPreprocessor(),
     CleanDatasetPreprocessor(),
-    SampleWeightPreprocessor(),
+    SampleWeightPreprocessor(max_weight_ratio=2.0),
 ]
 
 model_config = {
