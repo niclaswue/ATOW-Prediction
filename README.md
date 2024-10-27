@@ -23,8 +23,10 @@ pip install -r requirements.txt
 Now it's time to download the competition data.
 This script will create a new directory called `data` and download the competition data.
 It will start with the mandatory csv files and then continues with the daily trajectories.
-These are 150GB+ in size, you might want to start the script in a screen session.
-You can stop the download anytime, it will automatically resume when started again.
+> [!NOTE]
+> These are 150GB+ in size, so downloading will take a while. You might want to start the script in a screen session.
+> You can stop the download anytime, it will automatically resume when started again. Alternatively, you can manually copy relevant OSN Trajectory `.parquet` files into `data/`.
+
 
 ```
 python download_competition_data.py
@@ -54,8 +56,19 @@ The resulting data is not used right now.
 
 For an overview of all the additional datasets see the list of [additional data sources](documentation/additional_data_sources.md).
 
+### Prepare Trajectory Features
+Our model takes some input features from the OSN Trajectories. Running the Preprocessing of the Trajectories can take a while, therefore this is done in a separate step and the result is saved as `all_trajectory_features.parquet` in the `additional_data` directory.
+Excpect this to take multiple hours (up to 10 hours on a regular Laptop PC).
+```
+python ./preprocessing/trajectory_batchprocessing.py
+```
+> [!TIP]
+> If you have a more performant machine, edit the number of parallel processes in the constant `POOL_NUMBER` in `preprocessing/trajectory_batchprocessing.py`
+
+Once all data is downloaded and the trajectory-features are preprocessed, you can continue with running the training.
 
 ### Run the training
+
 To run the training, start:
 ```
 python run.py
