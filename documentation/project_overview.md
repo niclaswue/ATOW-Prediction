@@ -2,10 +2,30 @@
 This project implements a flexible and extensible system for estimating Aircraft Take-Off Weight (ATOW) using a modular architecture that combines various data sources and machine learning approaches into a customizable data pipeline. The system is designed with adaptability and maintainability in mind, allowing for easy integration of new data sources and modeling techniques.
 
 
-### Data Pipeline Overview
+## Data Pipeline Overview
 TODO für Niclas -> Deine Grafik?
 
-### Core Components
+
+
+## Data Sources and Feature Engineering
+Our current pipeline for estimating ATOW incorporates multiple specialized preprocessors for different aspects of flight operations:
+
+- General Airport Information
+- Runway Characteristics
+- Weather Conditions (METAR)
+- Weather Safety Features
+- Trajectory Data
+- OpenAP Fuel Flow Calculations
+- Aircraft Data  
+- Passenger Flow Metrics
+- Custom Feature Engineering
+
+The final dataset has a number of features in addition to the features provided by the PRC Data Challenge training/challenge data. A comprehensive overview of these features is available [here](dataset_overview.md).
+
+## Final Submission Dataset
+The final submission dataset is once again cleaned, because we found a lot of less important features during our analysis. These feature columns are removed from the dataset with the `CleanDatasetPreprocessor.py`, before the model is trained.   
+
+## Implementation Features
 
 1. **Modular Preprocessing Pipeline**
    - Built on a `BasePreprocessor` abstract class that enables consistent feature engineering
@@ -20,26 +40,11 @@ TODO für Niclas -> Deine Grafik?
      - Prediction capability (`predict`)
      - Model information retrieval (`info`)
 
-### Data Sources and Feature Engineering
-Our current pipeline for estimating ATOW incorporates multiple specialized preprocessors for different aspects of flight operations:
-
-- General Airport Information
-- Runway Characteristics
-- Weather Conditions (METAR)
-- Weather Safety Features
-- Trajectory Data
-- OpenAP Fuel Flow Calculations
-- Aircraft Data  
-- Passenger Flow Metrics
-- Custom Feature Engineering
-
-### Implementation Features
-
-1. **Configurable Training Pipeline**
+3. **Configurable Training Pipeline**
    - Adjustable training/validation split ratios
    - Support for different quality presets and time limits
    
-2. **Evaluation Framework**
+4. **Evaluation Framework**
    - Dedicated metrics evaluation system
    - Support for model performance tracking
    - Feature importance analysis capabilities
