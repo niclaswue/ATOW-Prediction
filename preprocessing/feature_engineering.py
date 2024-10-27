@@ -3,7 +3,9 @@ from utils.dataset import Dataset
 
 
 class FeatureEngineeringPreprocessor(BasePreprocessor):
-    def __init__(self):
+    def __init__(self, no_cache=False) -> None:
+        super().__init__(no_cache)
+
         # Constants for calculations
         self.kg_to_lbs = 2.20462
         self.ft_to_meters = 0.3048

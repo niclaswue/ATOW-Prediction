@@ -5,7 +5,8 @@ from utils.dataset import Dataset
 
 
 class CreativeWeightPreprocessor(BasePreprocessor):
-    def __init__(self):
+    def __init__(self, no_cache=False) -> None:
+        super().__init__(no_cache)
         self.business_hours = set(range(9, 18))
         self.meal_times = {
             "breakfast": set(range(6, 9)),
