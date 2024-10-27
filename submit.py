@@ -45,7 +45,7 @@ assert len(dataset.df) > 0
 
 print("Starting prediction")
 predictions = model.predict(TabularDataset(dataset.df))
-result = dataset.df[["flight_id", "tow"]]
+result = dataset.df[["flight_id"]]
 result["tow"] = predictions
 result = result.set_index("flight_id")
 
