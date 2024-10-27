@@ -96,8 +96,8 @@ class CleanDatasetPreprocessor(BasePreprocessor):
         # dataset.df.drop(columns=low_var_cols, inplace=True)
 
         # 4. Basic missing value imputation
-        dataset.df = dataset.df.fillna(dataset.df.median())  # Numeric
-        dataset.df = dataset.df.fillna(dataset.df.mode().iloc[0])  # Categorical
+        # dataset.df = dataset.df.fillna(dataset.df.median())  # Numeric
+        # dataset.df = dataset.df.fillna(dataset.df.mode().iloc[0])  # Categorical
 
         # # flight ids with more than 3% over MTOW are considered outliers
         # mtow_outliers = [
