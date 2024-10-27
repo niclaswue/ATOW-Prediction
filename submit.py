@@ -6,7 +6,7 @@ from run_wandb import PREPROCESSORS
 import boto3
 import json
 
-SUBMIT_ARTIFACT = "model:v20"  # "AutogluonModels/ag-20241027_021339"  #
+SUBMIT_ARTIFACT = "model:v21"  # "AutogluonModels/ag-20241027_021339"  #
 
 wandb.init(project="flying_penguins", name=f"submission_{SUBMIT_ARTIFACT}")
 submission_dir = Path("submissions")
