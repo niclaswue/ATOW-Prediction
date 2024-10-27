@@ -135,9 +135,6 @@ class CreativeWeightPreprocessor(BasePreprocessor):
                 / (df["Seats Total"] * df["flown_distance"])
             )
 
-        # CO2 estimation factors
-        df["co2_factor"] = df["flown_distance"] * df["openap_fuel_coef"]
-
     def _add_operational_complexity_features(self, df):
         """Features capturing operational complexity"""
         # Route complexity
