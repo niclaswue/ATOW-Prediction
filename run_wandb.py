@@ -4,8 +4,10 @@ from typing import List
 import warnings
 
 import pandas as pd
-from utils.data_loader import DataLoader
+import argparse
+import wandb
 
+from utils.data_loader import DataLoader
 from preprocessing.base_preprocessor import BasePreprocessor
 from preprocessing.clean_dataset import CleanDatasetPreprocessor
 from preprocessing.aircraft_performance import AircraftPerformancePreprocessor
@@ -17,8 +19,6 @@ from preprocessing.derived_features import DerivedFeaturePreprocessor
 from preprocessing.airport_preprocessor import AirportPreprocessor
 from preprocessing.trajectory_preprocessor import TrajectoryPreprocessor
 from preprocessing.weather_safety_features import WeatherSafetyFeatures
-
-# from preprocessing.payload_prediction_preprocessor import PayloadPredictionPreprocessor
 from preprocessing.feature_engineering import FeatureEngineeringPreprocessor
 from preprocessing.creative_feature_engineering import CreativeWeightPreprocessor
 from preprocessing.openap_fuelflow import OpenAPFuelFlowPreprocessor
@@ -26,11 +26,8 @@ from preprocessing.aircraft_performance_openap import (
     OpenAPAircraftPerformancePreprocessor,
 )
 from preprocessing.weigh_samples import SampleWeightPreprocessor
-
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
-import argparse
-import wandb
 
 pd.set_option("future.no_silent_downcasting", True)
 warnings.filterwarnings(action="ignore", message="Mean of empty slice")
@@ -45,6 +42,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+# NOTE: We set no_cache=True to avoid confusion around caching during inference.
 PREPROCESSORS: List[BasePreprocessor] = [
     AirportPreprocessor(no_cache=True),
     OpenAPAircraftPerformancePreprocessor(no_cache=True),
@@ -70,7 +68,7 @@ model_config = {
 
 evaluator = MetricEvals()
 model = AutogluonModel(**model_config)
-loader = DataLoader(Path("data"), num_days=0)
+loader = DataLoader(Path("data"))
 
 
 def train(dataset, final=False):
@@ -86,6 +84,7 @@ def train(dataset, final=False):
         predictions = model.predict(val_df)
         evaluator.evaluate_and_log(val_df.tow, predictions)
 
+    # get latest autogluon directory
     output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log_model(output, name="model")
     model.log_feature_importance(train_df)
@@ -103,6 +102,4 @@ if __name__ == "__main__":
     model = train(challenge, final=args.final)
 
     wandb.log({"raw_model_info": model.info()})
-    # wandb.log_model(output, name="model")
-
     print("Done with training.")
