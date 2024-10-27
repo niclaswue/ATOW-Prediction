@@ -91,6 +91,11 @@ for the final submission, run a command similar to this with your chosen time li
 python run_wandb.py --time 36000 --final
 ```
 
+To submit the results to the leaderboard, you need to place a file .access_keys.json in the root of the repo. The file is the one attached in the initial email sent to participants. Next, enter the model artifact name or local path in `submit.py`. Finally, execute
+```
+python submit.py
+```
+
 ### Key Modules and Classes
 
 - **download_competition_data.py**: Handles downloading of the main competition data, including the OSN trajectory files.
