@@ -26,7 +26,7 @@ class OpenAPFuelFlowPreprocessor(BasePreprocessor):
         for _, row in tqdm(dataset.df.iterrows(), total=len(dataset.df)):
             fuelflow = ff_for_ac(row["aircraft_type"])
             alt = row["cruise_altitude"]
-            tas = row["mean_cruise_speed"] - row["average_headwind"]
+            tas = row["mean_cruise_speed"] + row["average_headwind"]
             open_ap_cruise_mass = row["openap_mlw"] + (
                 (row["openap_mtow"] - row["openap_mlw"]) / 2
             )
