@@ -2,6 +2,10 @@
 This is our entry for the PRC Data Challenge: https://ansperformance.eu/study/data-challenge
 We are committed to go open on the outcome of this challenge!
 
+>[!Note]
+> This README focusses on setting up and running the project. A more [general overview](documentation/project_overview.md) of the project is also available.
+
+
 ## Initial Setup
 ### Setup up the development environment
 
