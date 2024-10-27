@@ -18,6 +18,7 @@ class FeatureEngineeringPreprocessor(BasePreprocessor):
         df = dataset.df
 
         # High importance feature groups
+        self._add_flight_type_features(df)
         self._add_aircraft_characteristics(df)
         self._add_route_features(df)
         self._add_weight_limit_features(df)
@@ -58,6 +59,23 @@ class FeatureEngineeringPreprocessor(BasePreprocessor):
         # Engine characteristics
         df["engine_bypass_ratio"] = df["openap_bpr"]
         df["engine_pressure_ratio"] = df["openap_pr"]
+
+    def _add_flight_type_features(self, df):
+        """Add flight type classifications"""
+        # International flight detection
+        df["is_international"] = df["country_code_adep"] != df["country_code_ades"]
+
+        # Regional classifications
+        df["is_EU_internal"] = (df["adep_continent"] == "EU") & (
+            df["ades_continent"] == "EU"
+        )
+
+        # Airport type combinations
+        df["airport_pair_category"] = df["adep_type"].map(
+            {"large_airport": 2, "medium_airport": 1, "small_airport": 0}
+        ) + df["ades_type"].map(
+            {"large_airport": 2, "medium_airport": 1, "small_airport": 0}
+        )
 
     def _add_route_features(self, df):
         """Route and distance features (high importance)"""
