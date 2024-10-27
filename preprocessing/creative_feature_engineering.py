@@ -63,13 +63,6 @@ class CreativeWeightPreprocessor(BasePreprocessor):
                 "openap_wing.area"
             ]
 
-        # Energy state approximation
-        df["potential_energy_factor"] = df["cruise_altitude"] * df["MTOW"]
-        if "mean_cruise_speed" in df.columns:
-            df["kinetic_energy_factor"] = (
-                0.5 * df["MTOW"] * (df["mean_cruise_speed"] ** 2)
-            )
-
         # Reynolds number approximation (simplified)
         df["reynolds_factor"] = df["openap_fuselage.length"] * df["mean_cruise_speed"]
 
@@ -90,18 +83,20 @@ class CreativeWeightPreprocessor(BasePreprocessor):
 
         # Premium time slots
         df["is_premium_hour"] = (
-            (df["departure_hour"].between(7, 9))  # Morning business
-            | (df["departure_hour"].between(16, 19))  # Evening business
-        )
+            df["departure_hour"].between(7, 9)
+        ) | (  # Morning business
+            df["departure_hour"].between(16, 19)
+        )  # Evening business
 
         # Holiday period detection
         df["is_holiday_month"] = df["month"].isin([7, 8, 12])  # Summer and Christmas
 
         # Weekend getaway pattern
         df["is_weekend_getaway"] = (
-            ((df["day_of_week"] == 4) & (df["departure_hour"] > 15))  # Friday evening
-            | ((df["day_of_week"] == 6) & (df["departure_hour"] < 12))  # Sunday morning
-        )
+            (df["day_of_week"] == 4) & (df["departure_hour"] > 15)
+        ) | (  # Friday evening
+            (df["day_of_week"] == 6) & (df["departure_hour"] < 12)
+        )  # Sunday morning
 
     def _add_competition_features(self, df):
         """Features based on competition and market dynamics"""
@@ -171,15 +166,6 @@ class CreativeWeightPreprocessor(BasePreprocessor):
             + (df["Seats Premium_Economy_Class"] * 1.5)
             + (df["Seats Economy_Class"] * 1.0)
         ) / df["Seats Total"]
-
-        # Load factor estimation
-        if "stats_PAS_PAS_CRD_TOTAL_y" in df.columns:
-            df["estimated_load_factor"] = np.clip(
-                df["stats_PAS_PAS_CRD_TOTAL_y"]
-                / (df["Seats Total"] * 30),  # Monthly approximation
-                0,
-                1,
-            )
 
         # Connection passenger likelihood
         df["connection_pax_likely"] = (

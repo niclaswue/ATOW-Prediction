@@ -25,6 +25,7 @@ from preprocessing.openap_fuelflow import OpenAPFuelFlowPreprocessor
 from preprocessing.aircraft_performance_openap import (
     OpenAPAircraftPerformancePreprocessor,
 )
+from preprocessing.weigh_samples import SampleWeightPreprocessor
 
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
@@ -39,23 +40,26 @@ parser.add_argument(
     "--quality", type=str, help="Quality Preset", default="best_quality"
 )
 parser.add_argument("--time", type=int, help="Time Limit (s)", default=300)
+parser.add_argument(
+    "--final", action="store_true", help="Final Submission", default=False
+)
 args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
-    AirportPreprocessor(),
-    OpenAPAircraftPerformancePreprocessor(),
-    AircraftPerformancePreprocessor(),
-    FuelPricePreprocessor(),
-    RunwayInfoPreprocessor(),
-    PaxFlowPreprocessor(),
-    WeatherDataPreprocessor(),
-    WeatherSafetyFeatures(),
-    DerivedFeaturePreprocessor(),
-    TrajectoryPreprocessor(),
-    OpenAPFuelFlowPreprocessor(),
-    FeatureEngineeringPreprocessor(),
-    CreativeWeightPreprocessor(),
-    CleanDatasetPreprocessor(),
+    AirportPreprocessor(no_cache=True),
+    OpenAPAircraftPerformancePreprocessor(no_cache=True),
+    AircraftPerformancePreprocessor(no_cache=True),
+    FuelPricePreprocessor(no_cache=True),
+    RunwayInfoPreprocessor(no_cache=True),
+    PaxFlowPreprocessor(no_cache=True),
+    WeatherDataPreprocessor(no_cache=True),
+    WeatherSafetyFeatures(no_cache=True),
+    DerivedFeaturePreprocessor(no_cache=True),
+    TrajectoryPreprocessor(no_cache=True),
+    OpenAPFuelFlowPreprocessor(no_cache=True),
+    FeatureEngineeringPreprocessor(no_cache=True),
+    CreativeWeightPreprocessor(no_cache=True),
+    CleanDatasetPreprocessor(no_cache=True),
 ]
 
 model_config = {
@@ -69,16 +73,21 @@ model = AutogluonModel(**model_config)
 loader = DataLoader(Path("data"), num_days=0)
 
 
-def train(dataset):
+def train(dataset, final=False):
     for preprocessor in PREPROCESSORS:
         dataset = preprocessor.apply(dataset)
 
-    train_df, val_df = dataset.split(train_percent=0.99, seed=0)
+    train_percent = 1.0 if final else 0.9
+    train_df, val_df = dataset.split(train_percent=train_percent, seed=0)
     print(f"\n\nTraining model {model.name}")
     model.train(train_df)
-    predictions = model.predict(val_df)
-    evaluator.evaluate_and_log(val_df.tow, predictions)
 
+    if not final:
+        predictions = model.predict(val_df)
+        evaluator.evaluate_and_log(val_df.tow, predictions)
+
+    output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
+    wandb.log_model(output, name="model")
     model.log_feature_importance(train_df)
     return model
 
@@ -91,10 +100,9 @@ if __name__ == "__main__":
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
     challenge, _, _ = loader.load()
-    model = train(challenge)
+    model = train(challenge, final=args.final)
 
-    output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log({"raw_model_info": model.info()})
-    wandb.log_model(output, name="model")
+    # wandb.log_model(output, name="model")
 
     print("Done with training.")

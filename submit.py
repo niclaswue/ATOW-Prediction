@@ -6,7 +6,7 @@ from run_wandb import PREPROCESSORS
 import boto3
 import json
 
-SUBMIT_ARTIFACT = "model:v11"
+SUBMIT_ARTIFACT = "model:v20"  # "AutogluonModels/ag-20241027_021339"  #
 
 wandb.init(project="flying_penguins", name=f"submission_{SUBMIT_ARTIFACT}")
 submission_dir = Path("submissions")
@@ -26,12 +26,17 @@ session = boto3.Session(
     aws_secret_access_key=access_keys.get("bucket_access_secret"),
 )
 
-artifact = wandb.run.use_artifact(SUBMIT_ARTIFACT)
-model = TabularPredictor.load(artifact.download())
+if SUBMIT_ARTIFACT.startswith("model"):
+    artifact = wandb.run.use_artifact(SUBMIT_ARTIFACT)
+    model_path = artifact.download()
+else:
+    model_path = SUBMIT_ARTIFACT
 
+model = TabularPredictor.load(model_path)
 loader = DataLoader(Path("data"), num_days=0)
 _, _, dataset = loader.load()
 
+assert len(dataset.df) > 0
 
 for preprocessor in PREPROCESSORS:
     dataset = preprocessor.apply(dataset)
