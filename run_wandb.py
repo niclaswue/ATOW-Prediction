@@ -25,6 +25,7 @@ from preprocessing.openap_fuelflow import OpenAPFuelFlowPreprocessor
 from preprocessing.aircraft_performance_openap import (
     OpenAPAircraftPerformancePreprocessor,
 )
+from preprocessing.weigh_samples import SampleWeightPreprocessor
 
 from models.autogluon_model import AutogluonModel
 from evals.metrics import MetricEvals
@@ -39,6 +40,9 @@ parser.add_argument(
     "--quality", type=str, help="Quality Preset", default="best_quality"
 )
 parser.add_argument("--time", type=int, help="Time Limit (s)", default=300)
+parser.add_argument(
+    "--final", action="store_true", help="Final Submission", default=False
+)
 args = parser.parse_args()
 
 PREPROCESSORS: List[BasePreprocessor] = [
@@ -56,6 +60,7 @@ PREPROCESSORS: List[BasePreprocessor] = [
     FeatureEngineeringPreprocessor(),
     CreativeWeightPreprocessor(),
     CleanDatasetPreprocessor(),
+    SampleWeightPreprocessor(),
 ]
 
 model_config = {
@@ -95,7 +100,7 @@ if __name__ == "__main__":
     wandb.config["preprocessors"] = [p.__class__.__name__ for p in PREPROCESSORS]
 
     challenge, _, _ = loader.load()
-    model = train(challenge)
+    model = train(challenge, final=args.final)
 
     output = sorted(Path("AutogluonModels").glob("ag-*"), key=os.path.getmtime)[-1]
     wandb.log({"raw_model_info": model.info()})
