@@ -37,7 +37,7 @@ python download_scripts/download_competition_data.py
 ```
 
 ### Additional Data
-Next we download the additional datasets that were used to boost the performance. All used datasets and attribution can be found under the Dataset Overview chapter.
+Next we download the additional datasets that were used to boost the performance. All used datasets with license and attribution can be found under the Dataset Overview chapter.
 
 > [!NOTE]
 > For your conveinence we uploaded the complete `additional_data` directory as a zip file. Instead of following the next steps, you can download and extract the folder in the root of the repository: 
