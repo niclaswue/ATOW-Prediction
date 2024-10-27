@@ -78,22 +78,22 @@ class CleanDatasetPreprocessor(BasePreprocessor):
         dataset.df.drop(columns=missing_cols, inplace=True)
 
         # 2. Drop highly correlated features
-        corr_matrix = dataset.df.corr(numeric_only=True)
-        high_corr_features = []
-        for i in range(len(corr_matrix.columns)):
-            for j in range(i):
-                if abs(corr_matrix.iloc[i, j]) > 0.95:
-                    high_corr_features.append(corr_matrix.columns[i])
-                    break
-        dataset.df.drop(columns=high_corr_features, inplace=True)
+        # corr_matrix = dataset.df.corr(numeric_only=True)
+        # high_corr_features = []
+        # for i in range(len(corr_matrix.columns)):
+        #     for j in range(i):
+        #         if abs(corr_matrix.iloc[i, j]) > 0.95:
+        #             high_corr_features.append(corr_matrix.columns[i])
+        #             break
+        # dataset.df.drop(columns=high_corr_features, inplace=True)
 
         # 3. Drop low variance features
-        num_cols = dataset.df.select_dtypes(include=[np.number]).columns
-        low_var_cols = []
-        for col in num_cols:
-            if dataset.df[col].std() < 0.001:  # Nearly constant
-                low_var_cols.append(col)
-        dataset.df.drop(columns=low_var_cols, inplace=True)
+        # num_cols = dataset.df.select_dtypes(include=[np.number]).columns
+        # low_var_cols = []
+        # for col in num_cols:
+        #     if dataset.df[col].std() < 0.001:  # Nearly constant
+        #         low_var_cols.append(col)
+        # dataset.df.drop(columns=low_var_cols, inplace=True)
 
         # 4. Basic missing value imputation
         dataset.df = dataset.df.fillna(dataset.df.median())  # Numeric
