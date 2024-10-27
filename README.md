@@ -52,6 +52,8 @@ python download_bts_t100.py.py
 ```
 The resulting data is not used right now.
 
+For an overview of all the additional datasets see the list of [additional data sources](documentation/additional_data_sources.md).
+
 
 ### Run the training
 To run the training, start:
@@ -61,13 +63,59 @@ python run.py
 
 ### Logging with Weights & Biases
 Create a free personal account at wandb.ai, then after pip installing wandb log in using `wand login`.
+Afterwards, you can use the the wandb training:
 
-## Dataset Overview
-TODO make a list.
+```python
+python run_wandb.py
+```
+
+
 TODO: Provide download links for the preprocessed datasets, otherwise it takes a long time to preprocess the data 
 
 # Structure of the repository
-TODO make an overview of the different modules and classes.
+
+The repository is organized as follows:
+
+```python
+├── data/                           # Directory for storing downloaded competition data
+├── additional_data/                # Directory for storing additional datasets
+├── scripts/                        # Directory for various utility scripts
+│   ├── download_competition_data.py  # Script to download competition data
+│   ├── download_additional_data.py   # Script to download additional datasets
+│   ├── download_weather_data.py      # Script to download METAR weather data
+│   ├── download_bts_t100.py          # Script to scrape T-100 forms data
+│   └── run.py                        # Script to run the training process
+├── requirements.txt                # List of required Python packages
+├── models                          # Directory for storing different AI models used in training
+├── README.md                       # Project overview and setup instructions
+├── documentation/                  # Directory for project documentation
+│   └── additional_data_sources.md    # Documentation for additional data sources
+└── notebooks/                      # Jupyter notebooks for exploratory data analysis and experiments
+```
+
+### Key Modules and Classes
+
+- **download_competition_data.py**: Handles downloading of the main competition data, including the OSN trajectory files.
+- **download_additional_data.py**: Manages downloading of supplementary datasets to enhance model performance.
+- **download_weather_data.py**: Gathers METAR weather data for destination airports and compiles it into a comprehensive dataset.
+- **download_bts_t100.py**: Scrapes T-100 forms data from the Bureau of Transportation Statistics, though this data is not currently used.
+- **run.py**: Main script to initiate the training process.
+- **run_wandb.py**: Main script to initiate the training process, with model information stored in [Weights&Biases](https://wandb.ai) for MLOps.
+- **preprocessing directory**: This directory contains the preprocessors used to extract features from the various datasets.
+
+### Additional Documentation
+
+- **additional_data_sources.md**: Lists all additional datasets used, along with their licenses and attributions.
+
+### Data Directories
+
+- **data/**: Contains the primary competition data.
+- **additional_data/**: Stores additional datasets that are used to improve model performance.
+
+### Notebooks
+
+- **notebooks/**: Includes Jupyter notebooks for data exploration, feature engineering, and model experimentation.
+
 
 ---
 
