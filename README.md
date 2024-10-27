@@ -70,36 +70,16 @@ python ./preprocessing/trajectory_batchprocessing.py
 Once all data is downloaded and the trajectory-features are created, put the `all_trajectory_features` under `additional_data/trajectory_features`. Then you can continue with running the training.
 
 ### Run the training
-Create a free personal account at wandb.ai, then after pip installing wandb log in using `wand login`.
-Afterwards, you can use the the wandb training:
+Create a free personal account at wandb.ai, then after pip installing wandb log in using `wand login`. Afterwards, you can use the the wandb training. If you do not want to use wandb, execute `wandb disabled`.
 
-To just test out if everything is 
+To just test out if everything is working fine, run
 ```python
-python run_wandb.py
+python run_wandb.py --final
 ```
 
-# Structure of the repository
-
-The repository is organized as follows:
-
+for the final submission, run a command similar to this with your chosen time limit (36000 = 10h):
 ```python
-├── data/                           # Directory for storing downloaded competition data
-├── additional_data/                # Directory for storing additional datasets
-├── scripts/                        # Directory for various utility scripts
-│   ├── download_competition_data.py  # Script to download competition data
-│   ├── download_additional_data.py   # Script to download additional datasets
-│   ├── download_weather_data.py      # Script to download METAR weather data
-│   └── scrape_aircraft_info.py       # Script to scrape public aircraft infos from airline alliances
-├── requirements.txt                # List of required Python packages
-├── models                          # Directory for storing different AI models used in training
-├── README.md                       # Project overview and setup instructions
-├── documentation/                  # Directory for project documentation
-├── museum/                         # Collection of scripts and notebooks we used during development, not relevant for data pipeline
-├── preprocessing                   # Directory containing the different processors for the dataset
-├── evals                           # Directory containing some custom evaluation scripts to evaluate model performance
-├── models                          # Directory to collect different models for training
-├── utils                           # Utility scripts
-└── submissions                     # Collection of past challenge submissions
+python run_wandb.py --time 36000 --final
 ```
 
 ### Key Modules and Classes
