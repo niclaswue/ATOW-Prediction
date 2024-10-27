@@ -140,7 +140,7 @@ class CreativeWeightPreprocessor(BasePreprocessor):
         # Route complexity
         df["route_complexity"] = (
             (df["is_international"].astype(int) * 2)
-            + (df["elevation_difference"].abs() > 2000).astype(int)
+            + (df["elevation_change"].abs() > 2000).astype(int)
             + ((df["flown_distance"] > 3000).astype(int) * 1.5)
             + (df["is_hub_route"].astype(int))
         )
