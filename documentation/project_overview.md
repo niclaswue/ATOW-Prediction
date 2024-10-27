@@ -1,11 +1,12 @@
 # Project Overview
-Our project combines various data sources into a customizable data pipeline for estimating ATOW. The system is designed with adaptability and maintainability in mind, allowing for easy integration of new data sources and modeling techniques.
 
-
-## Data Pipeline Overview
 ![](data_flow.png)
 
+Our goal with the challenge was to integrate as many data sources as possible into our dataset and use AutoML for the tedious taks like feature selection, hyperparameter tuning and ensembling. Therefore, the main focus is put on the input data, rather than the mode itself. To be able to effectively iterate on and leverage external datasets, we created a class for each preprocessor. A preprocessor class alters the dataset. Some preprocessors depend on previous preprocessor features, some add external data. For better performance, each preprocessor acts as a smart caching layer using [**joblib**](https://github.com/joblib/joblib). For an identical input, the output is retrieved from cache, once the input changes, the processing is being triggered. This saved us time and headaches during development. For additional performance, we used the functools caching decorator throughout our computations. As for model selection we took inspiration from Kaggle competitions and chose [**Autogluon**](https://github.com/autogluon/autogluon), which is the leading AutoML tool developed by Amazon. Autogluon will try all kinds of gradient boosted trees, sklearn classifiers and neural networks and finally builds a stacked ensemble automatically. Conveniently, we can specify a time limit for the training, the more time we spend, the better the model. Lastly, we wanted to keep track of different versions and store intermediate models, therefore we set up [**Weights & Biases**](https://github.com/wandb/wandb) as an experiment tracking tool. 
 
+<img width="1420" alt="image" src="https://github.com/user-attachments/assets/ae6d1482-a042-4f31-8228-5cc2ef1834f8">
+
+W&B allows us to monitor the training in the browser from anywhere, including plots, tables and logging output. For example, the feature importance of each feature is logged as a table after each training. We do the same for validation set predictions all metrics like RMSE, MAE etc. Weights & Biases also stores our models as artifacts in the cloud. Note that online use of W&B is optional for our solution. We intended to write a decoupled logging class to make it modular but we were too limited in time. We now describe all preprocessors and what information they add.
 
 ## Data Sources and Feature Engineering
 Our current pipeline for estimating ATOW incorporates multiple specialized preprocessors for different aspects of flight operations:
