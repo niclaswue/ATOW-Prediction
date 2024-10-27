@@ -26,10 +26,13 @@ class AutogluonModel(BaseModel):
 
         training_df.drop(columns=["flight_id"], inplace=True)
         train_data = TabularDataset(training_df)
+        sample_weight_column_preset = "sample_weight" in train_data.columns
+
         predictor = TabularPredictor(
             label="tow",
             verbosity=self.verbosity,
             log_to_file=True,
+            sample_weight="sample_weight" if sample_weight_column_preset else None,
         ).fit(
             train_data,
             time_limit=self.time_limit,
