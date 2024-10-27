@@ -6,9 +6,6 @@ We are committed to go open on the outcome of this challenge!
 >[!Note]
 > This README focusses on setting up and running the project. A more [general overview](documentation/project_overview.md) of the project is also available.
 
->[!Note]
-> Unfortunately, we had a last minute bug in our code which caused us to upload empty prediction files to our leaderboard. We noticed this too late. Our last model performs significantly better than the latest submitted model on the leaderboard. You can find it here: https://drive.google.com/file/d/1vhNiW-fSdwZWIaJJnUTF_vJSBC4OAmrR/view?usp=sharing 
-
 ## Initial Setup
 ### Setup up the development environment
 
