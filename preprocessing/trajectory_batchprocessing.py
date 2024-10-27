@@ -23,8 +23,8 @@ root_dir = Path(__file__).parent.parent.absolute()
 additional_data_dir = root_dir / "additional_data"
 trajectory_data_dir = root_dir / "data"
 single_flight_data_dir = additional_data_dir / "single_flight_data"
-# flight_information_file = trajectory_data_dir / "challenge_set.csv"
-flight_information_file = trajectory_data_dir / "final_submission_set.csv"
+flight_information_file_1 = trajectory_data_dir / "challenge_set.csv"
+flight_information_file_2 = trajectory_data_dir / "final_submission_set.csv"
 
 SPEED_THRESHOLD = 35  # knots
 POOL_NUMBER = 50  # choose 1 for no parallel processing
@@ -39,7 +39,10 @@ def main() -> None:
 def create_trajectory_features_batch() -> None:
     try:
         global flight_information
-        flight_information = pd.read_csv(flight_information_file)
+        set_1 = pd.read_csv(flight_information_file_1)
+        set_2 = pd.read_csv(flight_information_file_2)
+        flight_information = pd.concat((set_1, set_2))
+
     except FileNotFoundError:
         print("TrajectoryPreprocessor: Flight information file not found.")
         return
