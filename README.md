@@ -31,12 +31,12 @@ It will start with the mandatory csv files and then continues with the daily tra
 > These are 150GB+ in size, so downloading will take a while. You might want to start the script in a screen session.
 > You can stop the download anytime, it will automatically resume when started again. Alternatively, you can manually copy relevant OSN Trajectory `.parquet` files into `data/`.
 
-
 ```
 python download_scripts/download_competition_data.py
 ```
 
-Next we download the additional datasets that were used to boost the performance. All used datasets, licenses and attribution can be found under the Dataset Overview chapter.
+### Additional Data
+Next we download the additional datasets that were used to boost the performance. All used datasets and attribution can be found under the Dataset Overview chapter.
 
 ```
 python download_scripts/download_additional_data.py
@@ -60,24 +60,23 @@ For an overview of all the additional datasets see the list of [additional data 
 
 ### Prepare Trajectory Features
 Our model takes some input features from the OSN Trajectories. Running the Preprocessing of the Trajectories can take a while, therefore this is done in a separate step and the result is saved as `all_trajectory_features.parquet` in the `additional_data` directory.
-Excpect this to take multiple hours (up to 10 hours on a regular Laptop PC).
+Excpect this to take multiple hours (up to 10 hours on a regular Laptop PC). On a large machine you may be able to use GNU parallel.
 ```
 python ./preprocessing/trajectory_batchprocessing.py
 ```
 > [!TIP]
 > If you have a more performant machine, edit the number of parallel processes in the constant `POOL_NUMBER` in `preprocessing/trajectory_batchprocessing.py`
 
-Once all data is downloaded and the trajectory-features are preprocessed, you can continue with running the training.
+Once all data is downloaded and the trajectory-features are created, put the `all_trajectory_features` under `additional_data/trajectory_features`. Then you can continue with running the training.
 
 ### Run the training
 Create a free personal account at wandb.ai, then after pip installing wandb log in using `wand login`.
 Afterwards, you can use the the wandb training:
 
+To just test out if everything is 
 ```python
 python run_wandb.py
 ```
-
-**TODO:** Provide download links for the preprocessed datasets, otherwise it takes a long time to preprocess the data 
 
 # Structure of the repository
 
