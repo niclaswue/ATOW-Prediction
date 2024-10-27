@@ -1,6 +1,6 @@
 # Aviation Dataset Column Legend
 
-In addition to the columns provided by the `challenge_set.csv` and `submission_set.csv` (Flight Information), we calculated the following features with our preprocessor-pipeline:
+In addition to the columns provided by the `challenge_set.csv` and `submission_set.csv` (Flight Information), we calculated the following features with our preprocessor pipeline. Note that the descriptions are still work in progress and not all features are shown here.
 
 ## Flight Information
 - `flight_id` - Unique identifier for each flight
@@ -141,8 +141,3 @@ Most challenging aspect has been the incompleteness of many trajectories, but ti
 - `stats_MOVE_ACM_TOTAL` - Total aircraft movements
 - `stats_PAS_PAS_CRD_TOTAL` - Total passenger count
 - `stats_T_FRM_LD_NLD_TOTAL` - Loading/unloading statistics
-
-## Performance Metrics
-- `error` - Difference between predicted and actual TOW
-- `absolute_error` - Absolute value of prediction error
-
