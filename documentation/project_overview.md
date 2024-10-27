@@ -33,6 +33,8 @@ Using ourairports, we added runway information such as runway length and elevati
 The passengers on board have the biggest impact on the weight of an aircraft. We therefore add passenger flow features for each airport using [data from the EU](https://ec.europa.eu/eurostat/cache/metadata/en/avia_pa_esms.htm).
 
 ### WeatherDataPreprocessor
+The weather at the destination airport can determine the amount of fuel that is loaded. We therefore wrote a script (download_weather_data.py) that can fetch the METARs for all destination airports at the time of arrival using the publicly provided API by Iowa State University. This could be extended for departure weather in the future.
+
 ### WeatherSafetyFeatures
 ### DerivedFeaturePreprocessor
 ### TrajectoryPreprocessor
