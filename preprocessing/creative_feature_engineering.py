@@ -63,13 +63,6 @@ class CreativeWeightPreprocessor(BasePreprocessor):
                 "openap_wing.area"
             ]
 
-        # Energy state approximation
-        df["potential_energy_factor"] = df["cruise_altitude"] * df["MTOW"]
-        if "mean_cruise_speed" in df.columns:
-            df["kinetic_energy_factor"] = (
-                0.5 * df["MTOW"] * (df["mean_cruise_speed"] ** 2)
-            )
-
         # Reynolds number approximation (simplified)
         df["reynolds_factor"] = df["openap_fuselage.length"] * df["mean_cruise_speed"]
 
