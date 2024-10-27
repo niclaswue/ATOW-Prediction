@@ -16,13 +16,11 @@ trajectory_data_file = (
 class TrajectoryPreprocessor(BasePreprocessor):
     def process(self, dataset: Dataset) -> Dataset:
         # check if the additional data directory contains the trajectory data
-        # if not, run the batch processing script -> this will take a while
-        # however, the features will be saved in the additional_data directory
         if not trajectory_data_file.exists():
-            print(
-                "TrajectoryPreprocessor: Trajectory data not found. Running batch processing script to create the features."
+            raise ValueError(
+                "TrajectoryPreprocessor: Trajectory data not found. Run batch processing script to create the features."
             )
-            # create_trajectory_features_batch()
+
         print("TrajectoryPreprocessor: Loading trajectory data.")
         trajectory_features = pd.read_parquet(trajectory_data_file)
 
@@ -32,7 +30,7 @@ class TrajectoryPreprocessor(BasePreprocessor):
             set(trajectory_features["flight_id"])
         ):
             print(
-                "TrajectoryPreprocessor: Not all flight_ids in the dataset are in the trajectory features. Running batch processing script again to create the features."
+                "TrajectoryPreprocessor: Not all flight_ids in the dataset are in the trajectory features. Run batch processing script again to create the features."
             )
             # create_trajectory_features_batch()
             trajectory_features = pd.read_parquet(trajectory_data_file)
