@@ -1,6 +1,6 @@
 # Aviation Dataset Column Legend
 
-In addition to the columns provided by the `challenge_set.csv` and `submission_set.csv`, we calculated the following features with our preprocessor-pipeline:
+In addition to the columns provided by the `challenge_set.csv` and `submission_set.csv` (Flight Information), we calculated the following features with our preprocessor-pipeline:
 
 ## Flight Information
 - `flight_id` - Unique identifier for each flight
