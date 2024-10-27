@@ -7,7 +7,7 @@ from utils.dataset import Dataset
 
 
 class DataLoader:
-    def __init__(self, data_path: Path, num_days: int = 3, seed: int = 0) -> None:
+    def __init__(self, data_path: Path, num_days: int = 0, seed: int = 0) -> None:
         self.path = data_path
         # self.num_days = num_days
         random.seed(seed)
