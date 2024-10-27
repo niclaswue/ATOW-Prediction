@@ -58,12 +58,12 @@ class AutogluonModel(BaseModel):
         y = self.model.predict(data)
 
         if self.wandb:
-            input_df["prediction"] = y
+            input_df.loc[:, "prediction"] = y
             if "tow" not in input_df.columns:
                 input_df["tow"] = 0
             pred = input_df[["prediction", "tow"]]
             pred["flight_id"] = flight_ids
-            pred["error"] = input_df["prediction"] - input_df["tow"]
+            pred.loc[:, "error"] = input_df["prediction"] - input_df["tow"]
 
             pred_table = wandb.Table(dataframe=pred)
             prediction_artifact = wandb.Artifact("predictions", type="dataset")
